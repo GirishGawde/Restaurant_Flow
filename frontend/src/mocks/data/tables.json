@@ -1,0 +1,66 @@
+[
+  {
+    "table_id": 1,
+    "t_no": 1,
+    "section": "Main Hall",
+    "capacity": 4,
+    "status": "free",
+    "last_activity": "2026-11-14T18:30:00Z"
+  },
+  {
+    "table_id": 2,
+    "t_no": 2,
+    "section": "Main Hall",
+    "capacity": 2,
+    "status": "occupied",
+    "last_activity": "2026-11-14T18:45:00Z"
+  },
+  {
+    "table_id": 3,
+    "t_no": 3,
+    "section": "Main Hall",
+    "capacity": 4,
+    "status": "needs_cleaning",
+    "last_activity": "2026-11-14T18:55:00Z"
+  },
+  {
+    "table_id": 4,
+    "t_no": 4,
+    "section": "Main Hall",
+    "capacity": 6,
+    "status": "free",
+    "last_activity": null
+  },
+  {
+    "table_id": 5,
+    "t_no": 13,
+    "section": "Terrace",
+    "capacity": 4,
+    "status": "free",
+    "last_activity": "2026-11-14T17:15:00Z"
+  },
+  {
+    "table_id": 6,
+    "t_no": 14,
+    "section": "Terrace",
+    "capacity": 4,
+    "status": "occupied",
+    "last_activity": "2026-11-14T19:00:00Z"
+  },
+  {
+    "table_id": 7,
+    "t_no": 16,
+    "section": "Private Room",
+    "capacity": 8,
+    "status": "reserved",
+    "last_activity": null
+  },
+  {
+    "table_id": 8,
+    "t_no": 17,
+    "section": "Bar",
+    "capacity": 2,
+    "status": "free",
+    "last_activity": "2026-11-14T18:10:00Z"
+  }
+]
