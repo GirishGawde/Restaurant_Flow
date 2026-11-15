@@ -1,0 +1,108 @@
+{
+  "updated_at": "2026-11-16T00:30:00Z",
+  "stats": {
+    "today_sales": 2845.50,
+    "paid_orders": 42,
+    "avg_bill": 67.75,
+    "occupied_tables": 6,
+    "total_tables": 18,
+    "free_tables": 10,
+    "reserved_tables": 1,
+    "needs_cleaning_tables": 1,
+    "active_orders": 8,
+    "active_guests": 26,
+    "kitchen_load_percent": 60,
+    "kitchen_items_active": 12,
+    "kitchen_capacity": 20
+  },
+  "tables": [
+    { "t_no": 1, "section": "Main Hall", "capacity": 4, "status": "free" },
+    { "t_no": 2, "section": "Main Hall", "capacity": 2, "status": "occupied" },
+    { "t_no": 3, "section": "Main Hall", "capacity": 4, "status": "needs_cleaning" },
+    { "t_no": 4, "section": "Main Hall", "capacity": 4, "status": "free" },
+    { "t_no": 5, "section": "Main Hall", "capacity": 6, "status": "occupied" },
+    { "t_no": 6, "section": "Main Hall", "capacity": 2, "status": "occupied" },
+    { "t_no": 7, "section": "Main Hall", "capacity": 4, "status": "free" },
+    { "t_no": 8, "section": "Main Hall", "capacity": 4, "status": "free" },
+    { "t_no": 9, "section": "Main Hall", "capacity": 6, "status": "free" },
+    { "t_no": 10, "section": "Main Hall", "capacity": 4, "status": "free" },
+    { "t_no": 11, "section": "Main Hall", "capacity": 2, "status": "free" },
+    { "t_no": 12, "section": "Main Hall", "capacity": 4, "status": "free" },
+    { "t_no": 13, "section": "Terrace", "capacity": 4, "status": "occupied" },
+    { "t_no": 14, "section": "Terrace", "capacity": 4, "status": "occupied" },
+    { "t_no": 15, "section": "Terrace", "capacity": 2, "status": "free" },
+    { "t_no": 16, "section": "Private Room", "capacity": 8, "status": "reserved" },
+    { "t_no": 17, "section": "Bar", "capacity": 2, "status": "occupied" },
+    { "t_no": 18, "section": "Bar", "capacity": 2, "status": "free" }
+  ],
+  "kitchen_queue": {
+    "items_active": 12,
+    "capacity": 20,
+    "active_orders": 3,
+    "status_pill": "Normal",
+    "queued": 4,
+    "cooking": 6,
+    "ready": 2,
+    "oldest_ticket_age_min": 14,
+    "target_prep_min": 20
+  },
+  "active_orders": [
+    {
+      "order_id": 1041,
+      "table_no": 2,
+      "guests": 2,
+      "waiter": "A. Smith",
+      "status": "In kitchen",
+      "open_for": "18m",
+      "total": 48.50
+    },
+    {
+      "order_id": 1042,
+      "table_no": 5,
+      "guests": 4,
+      "waiter": "M. Chen",
+      "status": "Queued",
+      "open_for": "8m",
+      "total": 76.00
+    },
+    {
+      "order_id": 1043,
+      "table_no": 6,
+      "guests": 2,
+      "waiter": "A. Smith",
+      "status": "Ready",
+      "open_for": "25m",
+      "total": 35.50
+    },
+    {
+      "order_id": 1044,
+      "table_no": 13,
+      "guests": 4,
+      "waiter": "M. Chen",
+      "status": "Served",
+      "open_for": "42m",
+      "total": 92.00
+    },
+    {
+      "order_id": 1045,
+      "table_no": 14,
+      "guests": 3,
+      "waiter": "A. Smith",
+      "status": "Bill requested",
+      "open_for": "55m",
+      "total": 64.00
+    },
+    {
+      "order_id": 1046,
+      "table_no": 17,
+      "guests": 2,
+      "waiter": "M. Chen",
+      "status": "In kitchen",
+      "open_for": "12m",
+      "total": 29.50
+    }
+  ],
+  "attention_tables": [
+    { "table_no": 3, "section": "Main Hall", "reason": "Needs cleaning after checkout" }
+  ]
+}

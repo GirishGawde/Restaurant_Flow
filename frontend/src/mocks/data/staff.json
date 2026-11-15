@@ -1,0 +1,62 @@
+[
+  {
+    "staff_id": "00000000-0000-0000-0000-000000000001",
+    "name": "J. Lee",
+    "username": "jlee",
+    "email": "jlee@resto.test",
+    "phone": "555-0101",
+    "role": "admin",
+    "is_active": true,
+    "last_login": "2026-11-15T18:20:00Z"
+  },
+  {
+    "staff_id": "00000000-0000-0000-0000-000000000002",
+    "name": "A. Smith",
+    "username": "asmith",
+    "email": "asmith@resto.test",
+    "phone": "555-0102",
+    "role": "waiter",
+    "is_active": true,
+    "last_login": "2026-11-15T19:05:00Z"
+  },
+  {
+    "staff_id": "00000000-0000-0000-0000-000000000003",
+    "name": "M. Chen",
+    "username": "mchen",
+    "email": "mchen@resto.test",
+    "phone": "555-0103",
+    "role": "waiter",
+    "is_active": true,
+    "last_login": "2026-11-15T17:45:00Z"
+  },
+  {
+    "staff_id": "00000000-0000-0000-0000-000000000004",
+    "name": "K. Rao",
+    "username": "krao",
+    "email": "krao@resto.test",
+    "phone": "555-0104",
+    "role": "chef",
+    "is_active": true,
+    "last_login": "2026-11-15T19:12:00Z"
+  },
+  {
+    "staff_id": "00000000-0000-0000-0000-000000000005",
+    "name": "M. Rossi",
+    "username": "mrossi",
+    "email": "mrossi@resto.test",
+    "phone": "555-0105",
+    "role": "cashier",
+    "is_active": true,
+    "last_login": "2026-11-15T18:50:00Z"
+  },
+  {
+    "staff_id": "00000000-0000-0000-0000-000000000006",
+    "name": "S. Patel",
+    "username": "spatel",
+    "email": "spatel@resto.test",
+    "phone": "555-0106",
+    "role": "waiter",
+    "is_active": false,
+    "last_login": "2026-11-10T14:30:00Z"
+  }
+]

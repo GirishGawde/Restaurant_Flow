@@ -4,13 +4,12 @@
  *
  * Top navigation bar:
  * - App title: "Restaurant Table & Kitchen Order Flow Simulator"
- * - Current screen / page label
- * - User name and role pill
- * - Logout button
+ * - Role-based navigation tabs for Admin (Dashboard, Menu, Staff, Reports, Audit log)
+ * - User name, role pill, profile link, and logout button
  */
 
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, NavLink, Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { ROLE_LABELS } from "../auth/roles";
 import StatusPill from "./StatusPill";
@@ -24,6 +23,14 @@ export function TopBar({ pageTitle }) {
     logout();
     navigate("/login");
   };
+
+  const adminNavItems = [
+    { label: "Dashboard", path: "/admin/dashboard" },
+    { label: "Menu", path: "/admin/menu" },
+    { label: "Staff", path: "/admin/staff" },
+    { label: "Reports", path: "/admin/reports" },
+    { label: "Audit log", path: "/admin/audit" },
+  ];
 
   const barStyle = {
     backgroundColor: "var(--color-bg-card)",
@@ -45,22 +52,18 @@ export function TopBar({ pageTitle }) {
   };
 
   const titleStyle = {
-    fontSize: "1rem",
+    fontSize: "0.95rem",
     fontWeight: "700",
     color: "var(--color-primary)",
     letterSpacing: "-0.01em",
+    textDecoration: "none",
   };
 
-  const dividerStyle = {
-    height: "20px",
-    width: "1px",
-    backgroundColor: "var(--color-border)",
-  };
-
-  const pageLabelStyle = {
-    fontSize: "0.95rem",
-    fontWeight: "500",
-    color: "var(--color-text-main)",
+  const navTabsStyle = {
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
+    marginLeft: "var(--spacing-md)",
   };
 
   const rightSectionStyle = {
@@ -74,26 +77,48 @@ export function TopBar({ pageTitle }) {
     alignItems: "center",
     gap: "var(--spacing-sm)",
     fontSize: "0.875rem",
+    textDecoration: "none",
+    color: "inherit",
   };
 
   return (
     <header style={barStyle}>
       <div style={leftSectionStyle}>
-        <span style={titleStyle}>Restaurant Table & Kitchen Order Flow Simulator</span>
-        {pageTitle && (
-          <>
-            <div style={dividerStyle} />
-            <span style={pageLabelStyle}>{pageTitle}</span>
-          </>
+        <Link to="/" style={titleStyle}>
+          Restaurant Simulator
+        </Link>
+
+        {/* Admin Navigation Tabs */}
+        {role === "admin" && (
+          <nav style={navTabsStyle} aria-label="Admin Navigation">
+            {adminNavItems.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                style={({ isActive }) => ({
+                  padding: "6px 12px",
+                  borderRadius: "var(--radius-md)",
+                  fontSize: "0.85rem",
+                  fontWeight: isActive ? 600 : 500,
+                  color: isActive ? "var(--color-primary)" : "var(--color-text-muted)",
+                  backgroundColor: isActive ? "var(--color-primary-subtle)" : "transparent",
+                  textDecoration: "none",
+                  transition: "all 0.15s ease",
+                })}
+              >
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
         )}
       </div>
 
       <div style={rightSectionStyle}>
         {user && (
-          <div style={userInfoStyle}>
+          <Link to="/profile" title="View Profile & Settings" style={userInfoStyle}>
             <span style={{ fontWeight: 500 }}>{user.name || user.username}</span>
             <StatusPill variant="green">{ROLE_LABELS[role] || role}</StatusPill>
-          </div>
+          </Link>
         )}
         <Button variant="secondary" onClick={handleLogout} style={{ padding: "6px 12px", fontSize: "0.85rem" }}>
           Log out

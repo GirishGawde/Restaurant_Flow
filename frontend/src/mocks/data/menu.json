@@ -6,6 +6,7 @@
     "description": "Toasted bread, tomato, basil, garlic",
     "price": 8.50,
     "status": "active",
+    "station_id": 2,
     "station_name": "Cold"
   },
   {
@@ -15,60 +16,127 @@
     "description": "Romaine, parmesan, croutons, caesar dressing",
     "price": 9.50,
     "status": "active",
+    "station_id": 2,
     "station_name": "Cold"
   },
   {
     "item_id": 3,
     "name": "Chicken Wings",
     "category": "Starters",
-    "description": "Crispy chicken wings, hot sauce, celery",
+    "description": "Chicken wings, hot sauce, celery",
     "price": 11.00,
     "status": "active",
+    "station_id": 1,
     "station_name": "Grill"
   },
   {
     "item_id": 4,
-    "name": "Classic Burger",
-    "category": "Mains",
-    "description": "Beef patty, cheddar cheese, lettuce, tomato, toasted bun",
-    "price": 15.00,
-    "status": "active",
-    "station_name": "Grill"
+    "name": "Tomato Soup",
+    "category": "Starters",
+    "description": "Tomato, cream, basil",
+    "price": 7.00,
+    "status": "inactive",
+    "station_id": 3,
+    "station_name": "Oven"
   },
   {
     "item_id": 5,
-    "name": "Margherita Pizza",
+    "name": "Grilled Salmon",
     "category": "Mains",
-    "description": "Tomato sauce, fresh mozzarella, basil",
-    "price": 14.00,
+    "description": "Atlantic salmon, herbs, lemon butter",
+    "price": 24.00,
     "status": "active",
-    "station_name": "Oven"
+    "station_id": 1,
+    "station_name": "Grill"
   },
   {
     "item_id": 6,
-    "name": "Garlic Bread",
-    "category": "Sides",
-    "description": "Baguette slices with garlic herb butter",
-    "price": 5.50,
+    "name": "Classic Burger",
+    "category": "Mains",
+    "description": "Beef patty, cheese, lettuce, tomato, bun",
+    "price": 15.00,
     "status": "active",
-    "station_name": "Oven"
+    "station_id": 1,
+    "station_name": "Grill"
   },
   {
     "item_id": 7,
-    "name": "Lemonade",
-    "category": "Drinks",
-    "description": "Freshly squeezed lemon, mint, cane sugar",
-    "price": 4.00,
+    "name": "Pasta Carbonara",
+    "category": "Mains",
+    "description": "Spaghetti, egg, pancetta, parmesan",
+    "price": 16.00,
     "status": "active",
-    "station_name": "Bar"
+    "station_id": 3,
+    "station_name": "Oven"
   },
   {
     "item_id": 8,
+    "name": "Margherita Pizza",
+    "category": "Mains",
+    "description": "Tomato, mozzarella, basil",
+    "price": 14.00,
+    "status": "active",
+    "station_id": 3,
+    "station_name": "Oven"
+  },
+  {
+    "item_id": 9,
+    "name": "Garlic Bread",
+    "category": "Sides",
+    "description": "Baguette, garlic butter, parsley",
+    "price": 5.50,
+    "status": "active",
+    "station_id": 3,
+    "station_name": "Oven"
+  },
+  {
+    "item_id": 10,
+    "name": "Fries",
+    "category": "Sides",
+    "description": "Potato, salt",
+    "price": 4.50,
+    "status": "active",
+    "station_id": 1,
+    "station_name": "Grill"
+  },
+  {
+    "item_id": 11,
+    "name": "Lemonade",
+    "category": "Drinks",
+    "description": "Lemon, sugar, water, mint",
+    "price": 4.00,
+    "status": "active",
+    "station_id": 4,
+    "station_name": "Bar"
+  },
+  {
+    "item_id": 12,
+    "name": "Sparkling Water",
+    "category": "Drinks",
+    "description": "Sparkling mineral water",
+    "price": 3.00,
+    "status": "active",
+    "station_id": 4,
+    "station_name": "Bar"
+  },
+  {
+    "item_id": 13,
     "name": "Lava Cake",
     "category": "Desserts",
-    "description": "Warm chocolate molten cake with vanilla cream",
+    "description": "Chocolate, butter, egg, flour",
     "price": 8.00,
     "status": "active",
+    "station_id": 3,
     "station_name": "Oven"
+  },
+  {
+    "item_id": 14,
+    "name": "Cheesecake",
+    "category": "Desserts",
+    "description": "Cream cheese, biscuit base, berry sauce",
+    "price": 7.50,
+    "status": "sold_out",
+    "station_id": 2,
+    "station_name": "Cold"
   }
 ]
