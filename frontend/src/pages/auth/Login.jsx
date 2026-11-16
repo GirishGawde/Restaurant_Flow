@@ -19,10 +19,10 @@ import Card from "../../components/Card";
 import FormField from "../../components/FormField";
 
 const DEFAULT_CREDENTIALS = {
-  [ROLES.WAITER]: { username: "asmith", password: "test" },
-  [ROLES.ADMIN]: { username: "jlee", password: "test" },
-  [ROLES.CASHIER]: { username: "mrossi", password: "test" },
-  [ROLES.CHEF]: { username: "krao", password: "test" },
+  [ROLES.WAITER]: { username: "asmith", password: "password123" },
+  [ROLES.ADMIN]: { username: "jlee", password: "password123" },
+  [ROLES.CASHIER]: { username: "mrossi", password: "password123" },
+  [ROLES.CHEF]: { username: "krao", password: "password123" },
 };
 
 export function Login() {
@@ -32,7 +32,7 @@ export function Login() {
   // Default to Waiter role with pre-filled working credentials for Ayush
   const [selectedRole, setSelectedRole] = useState(ROLES.WAITER);
   const [username, setUsername] = useState("asmith");
-  const [password, setPassword] = useState("test");
+  const [password, setPassword] = useState("password123");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -57,7 +57,7 @@ export function Login() {
     setError("");
     try {
       setLoading(true);
-      const user = await login("asmith", "test", ROLES.WAITER);
+      const user = await login("asmith", "password123", ROLES.WAITER);
       navigate("/waiter/tables", { replace: true });
     } catch (err) {
       setError(err.message || "Fast login failed.");
@@ -72,7 +72,7 @@ export function Login() {
 
     // Fall back to role default if user left it blank
     const finalUsername = (username || "").trim() || DEFAULT_CREDENTIALS[selectedRole]?.username || "asmith";
-    const finalPassword = password || "test";
+    const finalPassword = password || "password123";
 
     try {
       setLoading(true);
@@ -231,7 +231,7 @@ export function Login() {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password (defaults to 'test')"
+              placeholder="Password (defaults to 'password123')"
               style={inputStyle}
             />
           </FormField>
@@ -243,7 +243,7 @@ export function Login() {
           {/* Quick Pre-fill helper badges */}
           <div style={{ marginTop: "14px", padding: "10px", backgroundColor: "var(--color-bg-page)", borderRadius: "var(--radius-md)", fontSize: "0.75rem" }}>
             <div style={{ color: "var(--color-text-muted)", marginBottom: "6px", fontWeight: 600 }}>
-              💡 Quick demo accounts (Password: <code>test</code>):
+              💡 Quick demo accounts (Password: <code>password123</code>):
             </div>
             <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
               <button

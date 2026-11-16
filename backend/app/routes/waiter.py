@@ -24,10 +24,32 @@ REST API Endpoints for Waiter Module (Screens 4 to 10):
 
 from flask import Blueprint, request, jsonify, g
 from app.auth import require_role, get_current_user
-from app.errors import bad_request
+from app.errors import bad_request, not_found
 from app.services import waiter_service
 
 waiter_bp = Blueprint("waiter", __name__)
+
+
+def _parse_order_id(raw_id):
+    """
+    Parses flexible order identifiers (integers, 'ORD-101', 'ORD-2', or 'current').
+    """
+    s = str(raw_id).strip()
+    if s.lower() in ("current", "latest"):
+        active = waiter_service.get_orders(status="open")
+        orders = active.get("orders", [])
+        if orders:
+            return orders[0]["order_id"]
+        all_orders = waiter_service.get_orders().get("orders", [])
+        if all_orders:
+            return all_orders[0]["order_id"]
+        raise not_found("No orders found in database")
+
+    clean = s.replace("ORD-", "").strip()
+    try:
+        return int(clean)
+    except ValueError:
+        raise bad_request(f"Invalid order id: {raw_id}")
 
 
 # =====================================================================
@@ -137,13 +159,14 @@ def list_orders():
     return jsonify(data), 200
 
 
-@waiter_bp.route("/orders/<int:order_id>", methods=["GET"])
+@waiter_bp.route("/orders/<order_id>", methods=["GET"])
 @require_role("waiter", "admin", "cashier", "chef")
 def get_order(order_id):
     """
     Screen 7: Order details, items breakdown, totals, and current optimistic version.
     """
-    order = waiter_service.get_order_by_id(order_id)
+    oid = _parse_order_id(order_id)
+    order = waiter_service.get_order_by_id(oid)
     return jsonify(order), 200
 
 
@@ -151,7 +174,7 @@ def get_order(order_id):
 # Order Item Mutation Routes (OCC Protected)
 # =====================================================================
 
-@waiter_bp.route("/orders/<int:order_id>/items", methods=["POST"])
+@waiter_bp.route("/orders/<order_id>/items", methods=["POST"])
 @require_role("waiter", "admin")
 def add_order_item(order_id):
     """
@@ -162,6 +185,7 @@ def add_order_item(order_id):
       - notes: string (optional)
       - expected_version: int (required)
     """
+    oid = _parse_order_id(order_id)
     data = request.get_json(silent=True) or {}
     item_id = data.get("item_id")
     quantity = data.get("quantity", 1)
@@ -177,7 +201,7 @@ def add_order_item(order_id):
     waiter_id = waiter.get("staff_id")
 
     result = waiter_service.add_order_item(
-        order_id=order_id,
+        order_id=oid,
         item_id=item_id,
         quantity=quantity,
         notes=notes,
@@ -187,7 +211,7 @@ def add_order_item(order_id):
     return jsonify(result), 200
 
 
-@waiter_bp.route("/orders/<int:order_id>/items/<int:item_id>", methods=["PATCH"])
+@waiter_bp.route("/orders/<order_id>/items/<int:item_id>", methods=["PATCH"])
 @require_role("waiter", "admin")
 def update_order_item(order_id, item_id):
     """
@@ -197,6 +221,7 @@ def update_order_item(order_id, item_id):
       - notes: string (optional)
       - expected_version: int (required)
     """
+    oid = _parse_order_id(order_id)
     data = request.get_json(silent=True) or {}
     quantity = data.get("quantity")
     notes = data.get("notes")
@@ -206,7 +231,7 @@ def update_order_item(order_id, item_id):
         raise bad_request("expected_version is required")
 
     result = waiter_service.update_order_item(
-        order_id=order_id,
+        order_id=oid,
         item_id=item_id,
         quantity=quantity,
         notes=notes,
@@ -215,7 +240,7 @@ def update_order_item(order_id, item_id):
     return jsonify(result), 200
 
 
-@waiter_bp.route("/orders/<int:order_id>/items/<int:item_id>", methods=["DELETE"])
+@waiter_bp.route("/orders/<order_id>/items/<int:item_id>", methods=["DELETE"])
 @require_role("waiter", "admin")
 def remove_order_item(order_id, item_id):
     """
@@ -223,6 +248,7 @@ def remove_order_item(order_id, item_id):
     Query or Body JSON:
       - expected_version: int (required)
     """
+    oid = _parse_order_id(order_id)
     data = request.get_json(silent=True) or {}
     expected_version = data.get("expected_version") or request.args.get("expected_version")
 
@@ -230,7 +256,7 @@ def remove_order_item(order_id, item_id):
         raise bad_request("expected_version is required")
 
     result = waiter_service.remove_order_item(
-        order_id=order_id,
+        order_id=oid,
         item_id=item_id,
         expected_version=int(expected_version),
     )
@@ -241,7 +267,7 @@ def remove_order_item(order_id, item_id):
 # Workflow State Transition Routes
 # =====================================================================
 
-@waiter_bp.route("/orders/<int:order_id>/send-to-kitchen", methods=["POST"])
+@waiter_bp.route("/orders/<order_id>/send-to-kitchen", methods=["POST"])
 @require_role("waiter", "admin")
 def send_to_kitchen(order_id):
     """
@@ -249,23 +275,25 @@ def send_to_kitchen(order_id):
     Body JSON:
       - expected_version: int (required)
     """
+    oid = _parse_order_id(order_id)
     data = request.get_json(silent=True) or {}
     expected_version = data.get("expected_version")
 
     if expected_version is None:
         raise bad_request("expected_version is required")
 
-    result = waiter_service.send_to_kitchen(order_id=order_id, expected_version=expected_version)
+    result = waiter_service.send_to_kitchen(order_id=oid, expected_version=expected_version)
     return jsonify(result), 200
 
 
-@waiter_bp.route("/orders/<int:order_id>/lock", methods=["POST"])
+@waiter_bp.route("/orders/<order_id>/lock", methods=["POST"])
 @require_role("waiter", "admin")
 def lock_order(order_id):
     """
     Screen 8B: Lock Acquisition Demo.
     Demonstrates pessimistic row-locking on the order with a 30s timeout.
     """
+    oid = _parse_order_id(order_id)
     data = request.get_json(silent=True) or {}
     wait_seconds = data.get("wait_seconds", 30)
 
@@ -273,31 +301,33 @@ def lock_order(order_id):
     waiter_id = waiter.get("staff_id")
 
     result = waiter_service.acquire_order_lock(
-        order_id=order_id,
+        order_id=oid,
         waiter_id=waiter_id,
         wait_seconds=wait_seconds,
     )
     return jsonify(result), 200
 
 
-@waiter_bp.route("/orders/<int:order_id>/request-bill", methods=["POST"])
+@waiter_bp.route("/orders/<order_id>/request-bill", methods=["POST"])
 @require_role("waiter", "admin")
 def request_bill(order_id):
     """
     Screen 7: Move order status to 'bill_requested'.
     Enabled once all kitchen items are served.
     """
-    result = waiter_service.request_bill(order_id)
+    oid = _parse_order_id(order_id)
+    result = waiter_service.request_bill(oid)
     return jsonify(result), 200
 
 
-@waiter_bp.route("/orders/<int:order_id>/cancel", methods=["POST"])
+@waiter_bp.route("/orders/<order_id>/cancel", methods=["POST"])
 @require_role("waiter", "admin")
 def cancel_order(order_id):
     """
     Screen 7 / Screen 4: Cancels active order and frees table.
     """
-    result = waiter_service.cancel_order(order_id)
+    oid = _parse_order_id(order_id)
+    result = waiter_service.cancel_order(oid)
     return jsonify(result), 200
 
 

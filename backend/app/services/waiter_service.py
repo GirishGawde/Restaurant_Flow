@@ -402,7 +402,7 @@ def get_order_by_id(order_id):
             """
             SELECT oi.order_item_id, oi.item_id, m.name, oi.quantity,
                    oi.unit_price, (oi.quantity * oi.unit_price) AS subtotal,
-                   oi.status, oi.notes, oi.added_at, oi.added_by
+                   oi.status, oi.notes, oi.created_at AS added_at, oi.added_by
             FROM order_item oi
             JOIN menu_item m ON oi.item_id = m.item_id
             WHERE oi.order_id = %s
@@ -523,7 +523,7 @@ def add_order_item(order_id, item_id, quantity, notes, expected_version, waiter_
         else:
             cur.execute(
                 """
-                INSERT INTO order_item (order_id, item_id, quantity, unit_price, status, notes, added_by, added_at)
+                INSERT INTO order_item (order_id, item_id, quantity, unit_price, status, notes, added_by, created_at)
                 VALUES (%s, %s, %s, %s, 'draft', %s, %s, now())
                 RETURNING order_item_id;
                 """,

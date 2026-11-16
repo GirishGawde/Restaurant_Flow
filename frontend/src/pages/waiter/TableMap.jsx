@@ -99,8 +99,12 @@ export function TableMap() {
 
   // Navigate to Order Panel
   const handleViewOrder = (table) => {
-    const orderId = table.order_id || "ORD-101";
-    navigate(`/waiter/orders/${orderId}`);
+    const orderId = table.order_id || table.active_order_id;
+    if (orderId) {
+      navigate(`/waiter/orders/${orderId}`);
+    } else {
+      navigate("/waiter/orders/current");
+    }
   };
 
   if (loading) {
@@ -591,7 +595,7 @@ export function TableMap() {
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem" }}>
                       <span style={{ color: "var(--color-text-muted)" }}>Active Order:</span>
                       <span style={{ fontWeight: 600, color: "var(--color-primary)" }}>
-                        {selectedTable.order_id || "ORD-101"}
+                        {selectedTable.order_id ? `ORD-${String(selectedTable.order_id).padStart(3, '0')}` : (selectedTable.active_order_id ? `ORD-${String(selectedTable.active_order_id).padStart(3, '0')}` : "Active Order")}
                       </span>
                     </div>
                   </>

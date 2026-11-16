@@ -33,7 +33,7 @@ CREATE OR REPLACE FUNCTION audit_trigger_fn()
 RETURNS trigger
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, extensions
 AS $$
 DECLARE
     v_old_val       jsonb := NULL;
@@ -81,7 +81,7 @@ BEGIN
                       COALESCE(v_old_val::text, '')    || '|' ||
                       v_changed_at::text;
 
-    v_calculated := encode(digest(v_hash_payload, 'sha256'), 'hex');
+    v_calculated := encode(extensions.digest(v_hash_payload::bytea, 'sha256'), 'hex');
 
     INSERT INTO audit_log (
         table_name,
@@ -169,7 +169,7 @@ RETURNS TABLE (
 )
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, extensions
 AS $$
 DECLARE
     r               RECORD;
@@ -203,7 +203,7 @@ BEGIN
                           COALESCE(r.old_value::text, '')  || '|' ||
                           r.changed_at::text;
 
-        v_recomputed := encode(digest(v_hash_payload, 'sha256'), 'hex');
+        v_recomputed := encode(extensions.digest(v_hash_payload::bytea, 'sha256'), 'hex');
 
         IF r.hash <> v_recomputed THEN
             RETURN QUERY SELECT
@@ -238,7 +238,7 @@ CREATE OR REPLACE FUNCTION log_manual_audit_event(
 RETURNS bigint
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, extensions
 AS $$
 DECLARE
     v_prev_hash    text := NULL;
@@ -260,7 +260,7 @@ BEGIN
                       COALESCE(p_old_value::text, '')  || '|' ||
                       v_changed_at::text;
 
-    v_hash := encode(digest(v_hash_payload, 'sha256'), 'hex');
+    v_hash := encode(extensions.digest(v_hash_payload::bytea, 'sha256'), 'hex');
 
     INSERT INTO audit_log (
         table_name,

@@ -56,17 +56,39 @@ export function OrderPanel() {
 
   // Load order data
   useEffect(() => {
+    let isMounted = true;
     const load = async () => {
+      setLoading(true);
       try {
-        const orderId = id || "ORD-101";
-        const data = await fetchOrder(orderId);
-        setOrder(data);
+        let data = null;
+        const targetId = id && id !== "current" && id !== "ORD-101" ? id : null;
+        if (targetId) {
+          try {
+            data = await fetchOrder(targetId);
+          } catch (err) {
+            console.warn(`Order ${targetId} fetch failed:`, err);
+          }
+        }
+        if (!data) {
+          // Find first active order
+          const all = await fetchMyOrders();
+          const list = Array.isArray(all) ? all : all?.orders || [];
+          if (list.length > 0) {
+            const active = list.find((o) => o.status !== "closed" && o.status !== "cancelled") || list[0];
+            try {
+              data = await fetchOrder(active.order_id);
+            } catch {
+              data = { ...active, items: active.items || [] };
+            }
+          }
+        }
+        if (isMounted) {
+          setOrder(data);
+        }
       } catch (err) {
-        console.warn("Order not found, falling back to first order:", err);
-        const all = await fetchMyOrders();
-        if (all.length > 0) setOrder(all[0]);
+        console.error("OrderPanel failed to load order:", err);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
     load();
@@ -74,25 +96,32 @@ export function OrderPanel() {
     const unsubscribe = waiterStore.subscribe((state) => {
       if (order?.order_id) {
         const updated = state.orders.find((o) => o.order_id === order.order_id);
-        if (updated) setOrder({ ...updated });
+        if (updated && isMounted) setOrder({ ...updated });
       }
     });
-    return () => unsubscribe();
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
   }, [id, order?.order_id]);
 
-  // Derived states
-  const draftItems = useMemo(() => {
-    return order?.items.filter((i) => i.status === "draft") || [];
+  // Derived states (safe against null / undefined)
+  const orderItems = useMemo(() => {
+    return Array.isArray(order?.items) ? order.items : [];
   }, [order?.items]);
+
+  const draftItems = useMemo(() => {
+    return orderItems.filter((i) => i.status === "draft");
+  }, [orderItems]);
 
   const kitchenItems = useMemo(() => {
-    return order?.items.filter((i) => i.status !== "draft") || [];
-  }, [order?.items]);
+    return orderItems.filter((i) => i.status !== "draft");
+  }, [orderItems]);
 
   const allItemsServed = useMemo(() => {
-    if (!order || order.items.length === 0) return false;
-    return order.items.every((i) => i.status === "served");
-  }, [order]);
+    if (!order || orderItems.length === 0) return false;
+    return orderItems.every((i) => i.status === "served");
+  }, [order, orderItems]);
 
   const isFrozen = order?.status === "bill_requested" || order?.status === "completed";
 
@@ -163,7 +192,7 @@ export function OrderPanel() {
       timestamp: new Date().toISOString(),
     });
 
-    if (order.items.every((i) => i.status === "served")) {
+    if (orderItems.every((i) => i.status === "served")) {
       order.status = "served";
     }
 
@@ -192,10 +221,26 @@ export function OrderPanel() {
     }
   };
 
-  if (loading || !order) {
+  if (loading) {
     return (
       <div style={{ textAlign: "center", padding: "var(--spacing-2xl) 0", color: "var(--color-text-muted)" }}>
         Loading order details...
+      </div>
+    );
+  }
+
+  if (!order) {
+    return (
+      <div style={{ textAlign: "center", padding: "var(--spacing-2xl) 0" }}>
+        <Card style={{ maxWidth: "480px", margin: "0 auto", padding: "32px 24px" }}>
+          <h3 style={{ fontSize: "1.2rem", fontWeight: 700, marginBottom: "8px" }}>No Active Order Selected</h3>
+          <p style={{ color: "var(--color-text-muted)", fontSize: "0.9rem", marginBottom: "20px" }}>
+            There is currently no active order. Choose an occupied table from the Table Map or open a new one.
+          </p>
+          <Button variant="primary" onClick={() => navigate("/waiter/tables")}>
+            View Table Map
+          </Button>
+        </Card>
       </div>
     );
   }
@@ -306,7 +351,7 @@ export function OrderPanel() {
             >
               <div>
                 <h3 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0 }}>
-                  Order Items ({order.items.length})
+                  Order Items ({orderItems.length})
                 </h3>
                 <span style={{ fontSize: "0.8rem", color: "var(--color-text-muted)" }}>
                   Review dishes before dispatching to kitchen stations
@@ -647,7 +692,7 @@ export function OrderPanel() {
             {/* Calculations */}
             <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "0.875rem" }}>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "var(--color-text-muted)" }}>Subtotal ({order.items.reduce((s, i) => s + i.quantity, 0)} items):</span>
+                <span style={{ color: "var(--color-text-muted)" }}>Subtotal ({orderItems.reduce((s, i) => s + (i.quantity || 0), 0)} items):</span>
                 <span style={{ fontWeight: 600 }}>{formatMoney(order.subtotal, "₹")}</span>
               </div>
 
