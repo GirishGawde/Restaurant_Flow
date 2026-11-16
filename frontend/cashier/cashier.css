@@ -1,0 +1,996 @@
+/**
+ * frontend/cashier/cashier.css
+ * Owner: Sakshi (Module 4 - Cashier and Billing)
+ *
+ * Exact styling and layout matching Figma wireframes (Screens 13, 14, 14.1, 15, 15.1)
+ */
+
+:root {
+  --cashier-bg-page: #F6F5F2;
+  --cashier-bg-card: #FFFFFF;
+  --cashier-border: #DDDAD3;
+  --cashier-border-subtle: #ECEAE4;
+  --cashier-text-main: #1B1B1B;
+  --cashier-text-muted: #6B6860;
+  --cashier-text-light: #9C988F;
+
+  --cashier-primary: #1E6F5C;
+  --cashier-primary-hover: #175849;
+  --cashier-primary-active: #114237;
+  --cashier-primary-subtle: #E8F4F0;
+
+  --cashier-danger: #C53030;
+  --cashier-danger-subtle: #FEE2E2;
+  --cashier-danger-border: #FECACA;
+
+  --cashier-success: #2D7A4F;
+  --cashier-success-subtle: #E8F5E9;
+  --cashier-success-border: #C8E6C9;
+
+  --cashier-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --cashier-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Base Container */
+.cashier-page-container {
+  font-family: var(--cashier-font);
+  background-color: var(--cashier-bg-page);
+  color: var(--cashier-text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top System Navigation Bar matching Figma */
+.cashier-system-bar {
+  background-color: #FFFFFF;
+  border-bottom: 1px solid var(--cashier-border);
+  height: 52px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justifyContent: space-between;
+  font-size: 0.85rem;
+}
+
+.cashier-system-title {
+  font-weight: 700;
+  color: var(--cashier-text-main);
+  letter-spacing: -0.01em;
+}
+
+.cashier-system-center {
+  color: var(--cashier-text-muted);
+  font-size: 0.825rem;
+  font-weight: 500;
+}
+
+.cashier-system-user {
+  color: var(--cashier-text-muted);
+  font-size: 0.825rem;
+}
+
+/* Page Header */
+.cashier-header {
+  padding: 24px 32px 16px 32px;
+  display: flex;
+  align-items: flex-start;
+  justifyContent: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.cashier-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--cashier-text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cashier-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--cashier-text-main);
+  margin: 4px 0 2px 0;
+  letter-spacing: -0.02em;
+}
+
+.cashier-subtitle {
+  font-size: 0.875rem;
+  color: var(--cashier-text-muted);
+  margin: 0;
+}
+
+/* Main Content Area */
+.cashier-main-content {
+  padding: 0 32px 32px 32px;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  flex: 1;
+}
+
+/* 2-Column Layout for Screen 13 & 14 */
+.cashier-two-col {
+  display: grid;
+  grid-template-columns: 1.7fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* Cards */
+.cashier-card {
+  background-color: var(--cashier-bg-card);
+  border: 1px solid var(--cashier-border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+/* Card Green Header (Screens 13 & 14) */
+.cashier-card-banner {
+  background-color: var(--cashier-primary);
+  color: #FFFFFF;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.cashier-order-badge {
+  background-color: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #FFFFFF;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.775rem;
+  font-weight: 500;
+}
+
+/* Order Sub-info Bar */
+.cashier-order-meta {
+  padding: 16px 20px 12px 20px;
+  border-bottom: 1px solid var(--cashier-border-subtle);
+}
+
+.cashier-order-meta-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--cashier-text-main);
+}
+
+.cashier-order-meta-sub {
+  font-size: 0.8rem;
+  color: var(--cashier-text-muted);
+  margin-top: 4px;
+}
+
+/* Itemised Bill Table */
+.cashier-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.cashier-table th {
+  padding: 12px 20px;
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--cashier-text-muted);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--cashier-border-subtle);
+}
+
+.cashier-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--cashier-border-subtle);
+  vertical-align: middle;
+}
+
+.cashier-item-name {
+  font-weight: 600;
+  color: var(--cashier-text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cashier-served-pill {
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 2px 6px;
+  background-color: var(--cashier-primary-subtle);
+  color: var(--cashier-primary);
+  border-radius: 4px;
+  border: 1px solid rgba(30, 111, 92, 0.2);
+}
+
+.cashier-table-count {
+  padding: 14px 20px;
+  font-size: 0.8rem;
+  color: var(--cashier-text-muted);
+}
+
+/* Order Notes Box */
+.cashier-notes-box {
+  margin: 12px 20px 20px 20px;
+  padding: 12px 16px;
+  background-color: #F8F7F4;
+  border: 1px solid var(--cashier-border-subtle);
+  border-radius: 6px;
+}
+
+.cashier-notes-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--cashier-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.cashier-notes-content {
+  font-size: 0.85rem;
+  color: var(--cashier-text-main);
+}
+
+/* History Box */
+.cashier-history-section {
+  padding: 12px 20px 20px 20px;
+  border-top: 1px solid var(--cashier-border-subtle);
+}
+
+.cashier-history-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--cashier-primary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cashier-history-list {
+  margin-top: 10px;
+  padding-left: 0;
+  list-style: none;
+  font-size: 0.775rem;
+  color: var(--cashier-text-muted);
+}
+
+.cashier-history-list li {
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px dashed var(--cashier-border-subtle);
+}
+
+.cashier-history-time {
+  font-family: var(--cashier-mono);
+  font-weight: 600;
+  color: var(--cashier-text-main);
+  min-width: 44px;
+}
+
+/* Right Column Summary Card */
+.cashier-summary-card {
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.cashier-section-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--cashier-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.cashier-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  font-size: 0.95rem;
+}
+
+.cashier-promo-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 8px 10px;
+  background-color: var(--cashier-primary-subtle);
+  border-radius: 6px;
+  border: 1px solid rgba(30, 111, 92, 0.15);
+}
+
+.cashier-promo-tag {
+  background-color: var(--cashier-primary);
+  color: #FFFFFF;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-right: 8px;
+}
+
+.cashier-promo-label {
+  font-size: 0.825rem;
+  color: var(--cashier-primary);
+  font-weight: 500;
+}
+
+.cashier-promo-discount {
+  font-weight: 600;
+  color: var(--cashier-primary);
+  font-size: 0.95rem;
+}
+
+.cashier-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-top: 14px;
+  border-top: 1px solid var(--cashier-border-subtle);
+  margin-top: 8px;
+}
+
+.cashier-total-label {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--cashier-text-main);
+}
+
+.cashier-total-amount {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--cashier-primary);
+}
+
+/* Payment Methods Grid */
+.cashier-payment-card {
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.cashier-methods-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.cashier-method-tile {
+  border: 1.5px solid var(--cashier-border);
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  padding: 16px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--cashier-text-main);
+}
+
+.cashier-method-tile:hover {
+  border-color: #BDBAAة;
+  background-color: #FAF9F6;
+}
+
+.cashier-method-tile.selected {
+  border-color: var(--cashier-primary);
+  background-color: var(--cashier-primary-subtle);
+  color: var(--cashier-primary);
+  font-weight: 700;
+}
+
+.cashier-method-icon-box {
+  width: 32px;
+  height: 22px;
+  border: 1.5px solid currentColor;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.cashier-method-selected-label {
+  font-size: 0.75rem;
+  color: var(--cashier-text-muted);
+}
+
+/* Cash Tendered Input */
+.cashier-cash-tender-box {
+  margin-top: 14px;
+  padding: 12px;
+  background-color: #FAF9F6;
+  border-radius: 6px;
+  border: 1px solid var(--cashier-border-subtle);
+}
+
+.cashier-input-group {
+  display: flex;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.cashier-input-prefix {
+  padding: 8px 12px;
+  background-color: #EFECE6;
+  border: 1px solid var(--cashier-border);
+  border-right: none;
+  border-radius: 6px 0 0 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--cashier-text-muted);
+}
+
+.cashier-text-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--cashier-border);
+  border-radius: 0 6px 6px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  outline: none;
+}
+
+.cashier-text-input:focus {
+  border-color: var(--cashier-primary);
+}
+
+.cashier-change-row {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+}
+
+/* Buttons */
+.cashier-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-size: 0.925rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+  width: 100%;
+  text-decoration: none;
+}
+
+.cashier-btn-primary {
+  background-color: var(--cashier-primary);
+  color: #FFFFFF;
+  border-color: var(--cashier-primary);
+}
+
+.cashier-btn-primary:hover:not(:disabled) {
+  background-color: var(--cashier-primary-hover);
+}
+
+.cashier-btn-primary:disabled {
+  background-color: #DDDAD3;
+  border-color: #DDDAD3;
+  color: #8C8880;
+  cursor: not-allowed;
+}
+
+.cashier-btn-secondary {
+  background-color: #FFFFFF;
+  color: var(--cashier-text-main);
+  border-color: var(--cashier-border);
+}
+
+.cashier-btn-secondary:hover {
+  background-color: #F8F7F4;
+}
+
+.cashier-btn-split {
+  background-color: #FFFFFF;
+  color: var(--cashier-primary);
+  border-color: var(--cashier-primary);
+}
+
+.cashier-btn-split:hover {
+  background-color: var(--cashier-primary-subtle);
+}
+
+.cashier-btn-header-back {
+  width: auto;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  background-color: #FFFFFF;
+  border: 1px solid var(--cashier-border);
+  color: var(--cashier-text-main);
+  border-radius: 6px;
+}
+
+/* Split Bill Controls (Screens 14 & 14.1) */
+.cashier-split-controls-row {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--cashier-border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.cashier-split-into {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+}
+
+.cashier-payer-num-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--cashier-border);
+  background-color: #FFFFFF;
+  color: var(--cashier-text-main);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.cashier-payer-num-btn.active {
+  background-color: var(--cashier-primary);
+  color: #FFFFFF;
+  border-color: var(--cashier-primary);
+}
+
+.cashier-mode-toggle {
+  display: flex;
+  background-color: #EFECE6;
+  padding: 3px;
+  border-radius: 6px;
+  border: 1px solid var(--cashier-border);
+}
+
+.cashier-mode-tab {
+  padding: 6px 14px;
+  border: none;
+  background: transparent;
+  font-size: 0.825rem;
+  font-weight: 500;
+  color: var(--cashier-text-muted);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.cashier-mode-tab.active {
+  background-color: #FFFFFF;
+  color: var(--cashier-primary);
+  font-weight: 700;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Payer Row Card */
+.cashier-payer-card {
+  margin: 16px 20px;
+  padding: 16px;
+  border: 1px solid var(--cashier-border);
+  border-radius: 8px;
+  background-color: #FFFFFF;
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1.2fr;
+  gap: 16px;
+  align-items: center;
+}
+
+.cashier-payer-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.cashier-payer-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--cashier-text-main);
+}
+
+.cashier-payer-name-input {
+  border: none;
+  border-bottom: 1px dashed var(--cashier-border);
+  font-size: 0.775rem;
+  color: var(--cashier-text-muted);
+  background: transparent;
+  outline: none;
+  margin-top: 4px;
+  padding: 2px 0;
+}
+
+.cashier-payer-field-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--cashier-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.cashier-amount-input-box {
+  display: flex;
+  align-items: center;
+  background-color: #F8F7F4;
+  border: 1px solid var(--cashier-border);
+  border-radius: 6px;
+  padding: 2px 10px;
+}
+
+.cashier-amount-input-box.mismatch {
+  border: 1.5px solid var(--cashier-danger) !important;
+  background-color: #FFF8F8;
+}
+
+.cashier-amount-currency {
+  font-weight: 600;
+  color: var(--cashier-text-muted);
+  margin-right: 6px;
+}
+
+.cashier-amount-field {
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: right;
+  width: 100%;
+  outline: none;
+  padding: 6px 0;
+}
+
+.cashier-select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--cashier-border);
+  border-radius: 6px;
+  background-color: #FFFFFF;
+  font-size: 0.875rem;
+  color: var(--cashier-text-main);
+  outline: none;
+}
+
+/* Split Check Match / Mismatch Status Box */
+.cashier-split-status {
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.cashier-split-status.match {
+  background-color: var(--cashier-success-subtle);
+  color: var(--cashier-success);
+  border: 1px solid var(--cashier-success-border);
+}
+
+.cashier-split-status.mismatch {
+  background-color: var(--cashier-danger-subtle);
+  color: var(--cashier-danger);
+  border: 1px solid var(--cashier-danger-border);
+}
+
+.cashier-split-caption {
+  font-size: 0.75rem;
+  color: var(--cashier-text-muted);
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* Screen 15 & 15.1: Payment Confirmation Centered Card */
+.cashier-confirmation-container {
+  max-width: 540px;
+  margin: 16px auto 40px auto;
+  background-color: #FFFFFF;
+  border: 1px solid var(--cashier-border);
+  border-radius: 12px;
+  padding: 32px 28px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  text-align: center;
+}
+
+/* Success Checkmark Circle */
+.cashier-success-circle {
+  width: 56px;
+  height: 56px;
+  background-color: var(--cashier-primary);
+  color: #FFFFFF;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px auto;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.cashier-confirm-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--cashier-text-main);
+  margin-bottom: 4px;
+}
+
+.cashier-confirm-subtitle {
+  font-size: 0.85rem;
+  color: var(--cashier-text-muted);
+  margin-bottom: 24px;
+}
+
+/* Screen 15.1 Alert Banner */
+.cashier-double-close-alert {
+  background-color: var(--cashier-danger-subtle);
+  border: 1px solid var(--cashier-danger-border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  margin-bottom: 24px;
+}
+
+.cashier-alert-icon-circle {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  background-color: var(--cashier-danger);
+  color: #FFFFFF;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.cashier-alert-heading {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--cashier-danger);
+  margin: 0;
+}
+
+.cashier-alert-desc {
+  font-size: 0.775rem;
+  color: var(--cashier-danger);
+  margin: 2px 0 0 0;
+  opacity: 0.9;
+}
+
+/* Thermal Paper Receipt Layout */
+.cashier-receipt-paper {
+  background-color: #FAF9F6;
+  border: 1.5px dashed var(--cashier-border);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: left;
+  margin-bottom: 24px;
+  font-size: 0.85rem;
+}
+
+.cashier-receipt-header {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.cashier-receipt-header-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--cashier-text-muted);
+  text-transform: uppercase;
+}
+
+.cashier-receipt-header-meta {
+  font-size: 0.75rem;
+  color: var(--cashier-text-muted);
+  margin-top: 4px;
+}
+
+.cashier-receipt-divider {
+  border: none;
+  border-top: 1px dashed var(--cashier-border);
+  margin: 12px 0;
+}
+
+.cashier-receipt-item-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+
+.cashier-receipt-item-label {
+  color: var(--cashier-text-main);
+}
+
+.cashier-receipt-item-price {
+  font-weight: 600;
+  color: var(--cashier-text-main);
+}
+
+.cashier-receipt-subtotal-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  color: var(--cashier-text-muted);
+}
+
+.cashier-receipt-discount-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  color: var(--cashier-primary);
+  font-weight: 500;
+}
+
+.cashier-receipt-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 8px 0;
+}
+
+.cashier-receipt-total-label {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.cashier-receipt-total-price {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--cashier-primary);
+}
+
+.cashier-receipt-paid-by {
+  font-size: 0.775rem;
+  color: var(--cashier-text-muted);
+  margin-top: 6px;
+}
+
+/* Modal for Simulated Email Receipt */
+.cashier-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.cashier-modal-box {
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  border: 1px solid var(--cashier-border);
+  width: 100%;
+  max-width: 420px;
+  padding: 24px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Screen Switcher Bar (Demo & wireframe test navigation) */
+.cashier-wireframe-switcher {
+  background-color: #212529;
+  color: #F8F9FA;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.775rem;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cashier-switcher-btn {
+  background-color: #343A40;
+  border: 1px solid #495057;
+  color: #F8F9FA;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cashier-switcher-btn:hover {
+  background-color: #495057;
+}
+
+.cashier-switcher-btn.active {
+  background-color: var(--cashier-primary);
+  border-color: var(--cashier-primary);
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+/* Responsive Media Queries */
+@media (max-width: 900px) {
+  .cashier-two-col {
+    grid-template-columns: 1fr;
+  }
+
+  .cashier-payer-card {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+/* Print Stylesheet for Physical Thermal Receipt */
+@media print {
+  body {
+    background-color: #FFFFFF !important;
+  }
+
+  .cashier-system-bar,
+  .cashier-header,
+  .cashier-wireframe-switcher,
+  .cashier-btn,
+  .cashier-double-close-alert,
+  .cashier-success-circle,
+  .cashier-confirm-title,
+  .cashier-confirm-subtitle,
+  .cashier-split-caption {
+    display: none !important;
+  }
+
+  .cashier-confirmation-container {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .cashier-receipt-paper {
+    border: 1px dashed #000 !important;
+    background-color: #FFF !important;
+    width: 320px;
+    margin: 0 auto;
+  }
+}
