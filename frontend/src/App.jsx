@@ -30,6 +30,12 @@ import StaffManagement from "./pages/admin/StaffManagement";
 import Reports from "./pages/admin/Reports";
 import AuditLog from "./pages/admin/AuditLog";
 
+// Kitchen & Stations pages (Module 3 - Diya)
+import KitchenDisplay from "./pages/kitchen/KitchenDisplay";
+import TicketDetail from "./pages/kitchen/TicketDetail";
+import StationsManagement from "./pages/kitchen/StationsManagement";
+import KitchenConcurrencyDemo from "./pages/kitchen/KitchenConcurrencyDemo";
+
 /**
  * Root index component that redirects to role home route if logged in,
  * or /login if unauthenticated.
@@ -177,17 +183,12 @@ export function App() {
                 }
               />
 
-              {/* Module 3: Kitchen Routes (Diya) */}
+              {/* Module 3: Kitchen & Stations Routes (Diya) */}
               <Route
                 path="/kitchen/board"
                 element={
                   <ProtectedRoute allowedRoles={[ROLES.CHEF, ROLES.ADMIN]}>
-                    <PlaceholderPage
-                      screenNumber="11"
-                      title="Kitchen Display Board"
-                      owner="Diya"
-                      description="Live kitchen display grouped by order, auto-refreshing via polling, with station filters and elapsed prep timers."
-                    />
+                    <KitchenDisplay />
                   </ProtectedRoute>
                 }
               />
@@ -195,12 +196,23 @@ export function App() {
                 path="/kitchen/tickets/:orderId"
                 element={
                   <ProtectedRoute allowedRoles={[ROLES.CHEF, ROLES.ADMIN]}>
-                    <PlaceholderPage
-                      screenNumber="12"
-                      title="Kitchen Ticket Detail"
-                      owner="Diya"
-                      description="Ticket breakdown with station items, prep state progression, and issue reporting."
-                    />
+                    <TicketDetail />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/kitchen/stations"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.CHEF, ROLES.ADMIN]}>
+                    <StationsManagement />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/kitchen/demo"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.CHEF, ROLES.ADMIN]}>
+                    <KitchenConcurrencyDemo />
                   </ProtectedRoute>
                 }
               />

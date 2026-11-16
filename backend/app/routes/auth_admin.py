@@ -376,19 +376,8 @@ def update_menu_item(item_id):
 
 
 # =====================================================================
-# Stations Route (Temporary)
+# Stations Route: Implemented by Diya in kitchen.py
 # =====================================================================
-
-@auth_admin_bp.route("/stations", methods=["GET"])
-@require_role("admin", "waiter", "chef", "cashier")
-def get_stations():
-    """
-    TEMPORARY: Returns list of kitchen stations for screen 17 station selector.
-    NOTE: Diya owns the /stations endpoint in Module 3 (kitchen.py).
-    This temporary copy will be removed when Module 3 is connected.
-    """
-    stations = admin_service.list_stations()
-    return jsonify({"stations": stations}), 200
 
 
 # =====================================================================

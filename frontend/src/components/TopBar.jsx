@@ -26,10 +26,18 @@ export function TopBar({ pageTitle }) {
 
   const adminNavItems = [
     { label: "Dashboard", path: "/admin/dashboard" },
+    { label: "Kitchen Display", path: "/kitchen/board" },
+    { label: "Stations", path: "/kitchen/stations" },
     { label: "Menu", path: "/admin/menu" },
     { label: "Staff", path: "/admin/staff" },
     { label: "Reports", path: "/admin/reports" },
     { label: "Audit log", path: "/admin/audit" },
+  ];
+
+  const chefNavItems = [
+    { label: "Kitchen Display", path: "/kitchen/board" },
+    { label: "Stations View", path: "/kitchen/stations" },
+    { label: "Concurrency Demo", path: "/kitchen/demo" },
   ];
 
   const barStyle = {
@@ -92,6 +100,30 @@ export function TopBar({ pageTitle }) {
         {role === "admin" && (
           <nav style={navTabsStyle} aria-label="Admin Navigation">
             {adminNavItems.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                style={({ isActive }) => ({
+                  padding: "6px 12px",
+                  borderRadius: "var(--radius-md)",
+                  fontSize: "0.85rem",
+                  fontWeight: isActive ? 600 : 500,
+                  color: isActive ? "var(--color-primary)" : "var(--color-text-muted)",
+                  backgroundColor: isActive ? "var(--color-primary-subtle)" : "transparent",
+                  textDecoration: "none",
+                  transition: "all 0.15s ease",
+                })}
+              >
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
+        )}
+
+        {/* Kitchen Staff / Chef Navigation Tabs */}
+        {role === "chef" && (
+          <nav style={navTabsStyle} aria-label="Chef Navigation">
+            {chefNavItems.map((item) => (
               <NavLink
                 key={item.path}
                 to={item.path}

@@ -13,11 +13,14 @@ import staffData from "./data/staff.json";
 import dashboardData from "./data/dashboard.json";
 import reportsData from "./data/reports.json";
 import auditData from "./data/audit.json";
+import kitchenData from "./data/kitchen.json";
 
 // In-memory state so edits persist while browsing in mock mode
 let mockMenuItems = [...menuData];
 let mockStaff = [...staffData];
 let mockAudit = { ...auditData };
+let mockStations = JSON.parse(JSON.stringify(stationsData));
+let mockKitchenOrders = JSON.parse(JSON.stringify(kitchenData));
 let mockCurrentStaff = mockStaff[0]; // J. Lee (admin)
 
 export async function handleMockRequest(endpoint, options = {}) {
@@ -276,9 +279,353 @@ export async function handleMockRequest(endpoint, options = {}) {
     return { menu_item: updated };
   }
 
-  // 9. Stations
+  // 9. Stations (Diya - Module 3)
   if (path === "/stations" && method === "GET") {
-    return { stations: stationsData };
+    const activeOnly = searchParams.get("active_only") === "true";
+    const res = activeOnly ? mockStations.filter((s) => s.is_active) : mockStations;
+    return { stations: res };
+  }
+
+  if (path === "/stations" && method === "POST") {
+    const { s_name, display_order = 0, target_prep_minutes = 15, is_active = true } = body;
+    if (!s_name || !s_name.trim()) {
+      const err = new Error("Station name is required.");
+      err.code = "BAD_REQUEST";
+      err.status = 400;
+      throw err;
+    }
+    const newStation = {
+      station_id: mockStations.length ? Math.max(...mockStations.map((s) => s.station_id)) + 1 : 1,
+      s_name: s_name.trim(),
+      display_order: parseInt(display_order, 10),
+      target_prep_minutes: parseInt(target_prep_minutes, 10),
+      is_active: Boolean(is_active),
+    };
+    mockStations.push(newStation);
+    return { station: newStation };
+  }
+
+  if (path.startsWith("/stations/") && method === "PATCH") {
+    const stId = parseInt(path.split("/")[2], 10);
+    const index = mockStations.findIndex((s) => s.station_id === stId);
+    if (index === -1) {
+      const err = new Error(`Station ${stId} not found.`);
+      err.code = "NOT_FOUND";
+      err.status = 404;
+      throw err;
+    }
+    const current = mockStations[index];
+    const updated = {
+      ...current,
+      ...(body.s_name !== undefined ? { s_name: body.s_name.trim() } : {}),
+      ...(body.display_order !== undefined ? { display_order: parseInt(body.display_order, 10) } : {}),
+      ...(body.target_prep_minutes !== undefined ? { target_prep_minutes: parseInt(body.target_prep_minutes, 10) } : {}),
+      ...(body.is_active !== undefined ? { is_active: Boolean(body.is_active) } : {}),
+    };
+    mockStations[index] = updated;
+    return { station: updated };
+  }
+
+  // 9.1 Kitchen Display Board (Screen 11: Diya)
+  if (path === "/kitchen/board" && method === "GET") {
+    const stationFilter = searchParams.get("station");
+    const sort = searchParams.get("sort") || "oldest_first";
+
+    let cards = mockKitchenOrders.map((order) => {
+      // Calculate age minutes and timer color
+      const ageMinutes = Math.floor(order.placed_at_offset_sec / 60);
+      let timerColor = "green";
+      if (order.ticket_status === "served") {
+        timerColor = null;
+      } else if (ageMinutes < 10) {
+        timerColor = "green";
+      } else if (ageMinutes <= 15) {
+        timerColor = "amber";
+      } else {
+        timerColor = "red";
+      }
+
+      // Format timer text (MM:SS)
+      const mins = Math.floor(order.placed_at_offset_sec / 60);
+      const secs = order.placed_at_offset_sec % 60;
+      const formattedTime = `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+
+      return {
+        ...order,
+        age_minutes: ageMinutes,
+        timer_color: timerColor,
+        timer_text: order.wait_offset_sec
+          ? `Wait ${String(Math.floor(order.wait_offset_sec / 60)).padStart(2, "0")}:${String(order.wait_offset_sec % 60).padStart(2, "0")}`
+          : formattedTime,
+        ticket_count: order.items.length,
+        item_count: order.items.reduce((acc, it) => acc + (it.quantity || 1), 0),
+      };
+    });
+
+    if (stationFilter && stationFilter !== "all") {
+      const stIdNum = parseInt(stationFilter, 10);
+      cards = cards.filter((c) =>
+        isNaN(stIdNum)
+          ? c.station_names.toLowerCase().includes(stationFilter.toLowerCase())
+          : c.station_ids.includes(stIdNum)
+      );
+    }
+
+    if (sort === "newest_first") {
+      cards.sort((a, b) => a.placed_at_offset_sec - b.placed_at_offset_sec);
+    } else if (sort === "table") {
+      cards.sort((a, b) => a.table_id - b.table_id);
+    } else {
+      cards.sort((a, b) => b.placed_at_offset_sec - a.placed_at_offset_sec);
+    }
+
+    const counts = {
+      all: mockKitchenOrders.length,
+      new: mockKitchenOrders.filter((o) => o.ticket_status === "queued").length,
+      cooking: mockKitchenOrders.filter((o) => o.ticket_status === "cooking").length,
+      ready: mockKitchenOrders.filter((o) => o.ticket_status === "ready").length,
+      done: mockKitchenOrders.filter((o) => o.ticket_status === "served").length,
+    };
+
+    return {
+      cards,
+      counts,
+      avg_prep_time: "12:40",
+    };
+  }
+
+  // 9.2 Kitchen Ticket Detail (Screen 12: Diya)
+  if (path.startsWith("/kitchen/orders/") && path.endsWith("/ticket") && method === "GET") {
+    const orderId = parseInt(path.split("/")[3], 10);
+    const order = mockKitchenOrders.find((o) => o.order_id === orderId);
+    if (!order) {
+      const err = new Error(`Order #${orderId} not found.`);
+      err.code = "NOT_FOUND";
+      err.status = 404;
+      throw err;
+    }
+
+    const elapsedMin = Math.floor(order.placed_at_offset_sec / 60);
+    const elapsedSec = order.placed_at_offset_sec % 60;
+    const elapsedStr = `${String(elapsedMin).padStart(2, "0")}:${String(elapsedSec).padStart(2, "0")}`;
+
+    // Target prep calculation
+    const targetMin = order.due_in_min || 15;
+    const minLeft = Math.max(0, targetMin - elapsedMin);
+
+    const history = [
+      {
+        stage_no: 1,
+        stage: "Placed",
+        happened_at: "12:14",
+        by_name: `${order.waiter_name} (waiter)`,
+        is_done: true,
+      },
+      {
+        stage_no: 2,
+        stage: "Accepted",
+        happened_at: order.ticket_status !== "queued" ? "12:15" : null,
+        by_name: "Chef R. Patel",
+        is_done: order.ticket_status !== "queued",
+      },
+      {
+        stage_no: 3,
+        stage: "Preparing",
+        happened_at: ["cooking", "ready", "served"].includes(order.ticket_status) ? "12:16" : null,
+        by_name: `${order.station_names || "Grill"} station`,
+        is_done: ["cooking", "ready", "served"].includes(order.ticket_status),
+      },
+      {
+        stage_no: 4,
+        stage: "Ready to serve",
+        happened_at: ["ready", "served"].includes(order.ticket_status) ? "12:28" : null,
+        by_name: ["ready", "served"].includes(order.ticket_status) ? "Chef R. Patel" : "Waiting for kitchen",
+        is_done: ["ready", "served"].includes(order.ticket_status),
+      },
+      {
+        stage_no: 5,
+        stage: "Served",
+        happened_at: order.ticket_status === "served" ? "12:35" : null,
+        by_name: order.ticket_status === "served" ? `${order.waiter_name}` : "Waiting for waiter",
+        is_done: order.ticket_status === "served",
+      },
+    ];
+
+    return {
+      order: {
+        ...order,
+        elapsed_str: elapsedStr,
+        target_minutes: targetMin,
+        minutes_left: minLeft,
+        placed_time: "12:14",
+        started_time: "12:16",
+        due_by_time: "12:31",
+      },
+      items: order.items,
+      history,
+    };
+  }
+
+  // 9.3 Advance Order Tickets (Card-level step: Diya)
+  if (path.startsWith("/kitchen/orders/") && path.endsWith("/advance") && method === "POST") {
+    const orderId = parseInt(path.split("/")[3], 10);
+    const { new_status } = body;
+    const orderIndex = mockKitchenOrders.findIndex((o) => o.order_id === orderId);
+
+    if (orderIndex === -1) {
+      const err = new Error(`Order #${orderId} not found.`);
+      err.code = "NOT_FOUND";
+      err.status = 404;
+      throw err;
+    }
+
+    const order = mockKitchenOrders[orderIndex];
+    const allowedProgression = {
+      queued: "cooking",
+      cooking: "ready",
+      ready: "served",
+    };
+
+    if (allowedProgression[order.ticket_status] !== new_status) {
+      const err = new Error(
+        `Ticket is '${order.ticket_status}' and cannot move to '${new_status}' (allowed order: queued -> cooking -> ready -> served).`
+      );
+      err.code = "KT001";
+      err.status = 409;
+      throw err;
+    }
+
+    order.ticket_status = new_status;
+    order.board_column =
+      new_status === "cooking" ? "Preparing" : new_status === "ready" ? "Ready to serve" : "Done";
+    // Also move all items together
+    order.items.forEach((item) => {
+      item.status = new_status;
+    });
+
+    return {
+      order_id: orderId,
+      new_status,
+      moved_count: order.items.length,
+      message: `Successfully advanced ${order.items.length} items to ${new_status}.`,
+    };
+  }
+
+  // 9.4 Update Single Ticket Status (Diya)
+  if (path.startsWith("/kitchen/tickets/") && path.endsWith("/status") && method === "PATCH") {
+    const ticketId = parseInt(path.split("/")[2], 10);
+    const { status: newStatus } = body;
+
+    let targetItem = null;
+    let targetOrder = null;
+
+    for (const order of mockKitchenOrders) {
+      const item = order.items.find((it) => it.ticket_id === ticketId);
+      if (item) {
+        targetItem = item;
+        targetOrder = order;
+        break;
+      }
+    }
+
+    if (!targetItem) {
+      const err = new Error(`Ticket #${ticketId} not found.`);
+      err.code = "NOT_FOUND";
+      err.status = 404;
+      throw err;
+    }
+
+    const ranks = { queued: 1, cooking: 2, ready: 3, served: 4 };
+    if (ranks[newStatus] !== ranks[targetItem.status] + 1) {
+      const err = new Error(
+        `Ticket #${ticketId} is '${targetItem.status}' and cannot move to '${newStatus}'. Must follow queued -> cooking -> ready -> served.`
+      );
+      err.code = "KT001";
+      err.status = 409;
+      throw err;
+    }
+
+    targetItem.status = newStatus;
+
+    // Check if all items in order have reached or exceeded this stage
+    const allReady = targetOrder.items.every((it) => ["ready", "served"].includes(it.status));
+    const allServed = targetOrder.items.every((it) => it.status === "served");
+    const anyCooking = targetOrder.items.some((it) => it.status === "cooking");
+
+    if (allServed) {
+      targetOrder.ticket_status = "served";
+      targetOrder.board_column = "Done";
+    } else if (allReady) {
+      targetOrder.ticket_status = "ready";
+      targetOrder.board_column = "Ready to serve";
+    } else if (anyCooking) {
+      targetOrder.ticket_status = "cooking";
+      targetOrder.board_column = "Preparing";
+    }
+
+    return { ticket: targetItem };
+  }
+
+  // 9.5 Report Issue on Ticket (Screen 12: Diya)
+  if (path.startsWith("/kitchen/tickets/") && path.endsWith("/issue") && method === "POST") {
+    const ticketId = parseInt(path.split("/")[2], 10);
+    const { note } = body;
+    if (!note || !note.trim()) {
+      const err = new Error("Issue description 'note' cannot be empty.");
+      err.code = "BAD_REQUEST";
+      err.status = 400;
+      throw err;
+    }
+
+    for (const order of mockKitchenOrders) {
+      const item = order.items.find((it) => it.ticket_id === ticketId);
+      if (item) {
+        item.issue_note = note.trim();
+        order.has_issue = true;
+        break;
+      }
+    }
+
+    return { ticket_id: ticketId, issue_note: note.trim() };
+  }
+
+  // 9.6 Kitchen Statistics (Diya)
+  if (path === "/kitchen/stats" && method === "GET") {
+    const stationLoads = mockStations.map((st) => {
+      let queued = 0;
+      let cooking = 0;
+      let ready = 0;
+
+      mockKitchenOrders.forEach((order) => {
+        if (order.ticket_status !== "served") {
+          order.items.forEach((it) => {
+            if (it.station_id === st.station_id || it.station === st.s_name) {
+              if (it.status === "queued") queued += it.quantity || 1;
+              else if (it.status === "cooking") cooking += it.quantity || 1;
+              else if (it.status === "ready") ready += it.quantity || 1;
+            }
+          });
+        }
+      });
+
+      return {
+        station_id: st.station_id,
+        station_name: st.s_name,
+        queued_items: queued,
+        cooking_items: cooking,
+        ready_items: ready,
+        in_progress_items: queued + cooking,
+        capacity: 20,
+        load_pct: Math.min(100, Math.round(((queued + cooking) / 20) * 100)),
+        target_minutes: st.target_prep_minutes || 15,
+        avg_prep_minutes: st.s_name === "Grill" ? 14.2 : st.s_name === "Cold" ? 6.5 : st.s_name === "Oven" ? 11.8 : 4.0,
+      };
+    });
+
+    return {
+      load: stationLoads,
+      prep_times: stationLoads,
+    };
   }
 
   // 10. Dashboard (Screen 16)
