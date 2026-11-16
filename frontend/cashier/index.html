@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cashier Module Preview – Restaurant Simulator</title>
+    <!-- Include Cashier styles -->
+    <link rel="stylesheet" href="./cashier.css" />
+    <!-- React 18 and Babel Standalone for direct in-browser execution without node_modules -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #F6F5F2;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useState, useEffect } = React;
+
+      // ==========================================
+      // Mock Data (Order #1042 Table T-02)
+      // ==========================================
+      const INITIAL_BILL = {
+        bill_id: 1042,
+        order_id: 1042,
+        receipt_no: "R-1042",
+        table_no: "T-02",
+        section: "Main Hall",
+        guests: 3,
+        waiter_name: "A. Smith",
+        cashier_name: "R. Patel",
+        opened_at: "14:23",
+        bill_requested_at: "14:50",
+        closed_at: "14:52",
+        date_formatted: "02/11/2026",
+        status: "unpaid",
+        items: [
+          { order_item_id: 201, name: "Grilled Salmon", quantity: 2, unit_price: 19.00, total_price: 38.00, served_at: "14:38" },
+          { order_item_id: 202, name: "Caesar Salad", quantity: 1, unit_price: 12.00, total_price: 12.00, served_at: "14:35" },
+          { order_item_id: 203, name: "Lemonade", quantity: 3, unit_price: 4.50, total_price: 13.50, served_at: "14:28" }
+        ],
+        subtotal: 63.50,
+        promotion: {
+          code: "STAFF10",
+          kind: "percentage",
+          value: 10.0,
+          label: "10% staff discount",
+          discount_amount: 6.35
+        },
+        total_amount: 57.15,
+        order_notes: "No onions on Caesar Salad • Birthday table",
+        history: [
+          { time: "14:23", text: "Order opened by waiter A. Smith" },
+          { time: "14:25", text: "Items sent to kitchen (Grill, Salad, Bar)" },
+          { time: "14:28", text: "Lemonade × 3 served (Bar)" },
+          { time: "14:35", text: "Caesar Salad × 1 served (Salad)" },
+          { time: "14:38", text: "Grilled Salmon × 2 served (Grill) – all items served" },
+          { time: "14:46", text: "STAFF10 discount applied (-$6.35)" },
+          { time: "14:50", text: "Bill requested by waiter A. Smith (order frozen)" }
+        ]
+      };
+
+      // ==========================================
+      // SCREEN 13: Bill & Payment
+      // ==========================================
+      function Screen13({ bill, onNavigateToSplit, onPayAndClose, onSimulate409 }) {
+        const [selectedMethod, setSelectedMethod] = useState("card");
+        const [cashTendered, setCashTendered] = useState("60.00");
+        const [showHistory, setShowHistory] = useState(false);
+
+        const subtotal = bill.subtotal;
+        const discount = bill.promotion?.discount_amount || 0;
+        const total = bill.total_amount;
+        const numericTendered = parseFloat(cashTendered) || 0;
+        const changeDue = numericTendered >= total ? (numericTendered - total).toFixed(2) : null;
+        const isTenderSufficient = numericTendered >= total;
+
+        return (
+          <div className="cashier-page-container">
+            <div className="cashier-system-bar">
+              <div className="cashier-system-title">Restaurant Table &amp; Kitchen Order Flow Simulator</div>
+              <div className="cashier-system-center">Cashier – Bill &amp; Payment · {bill.table_no}</div>
+              <div className="cashier-system-user">{bill.cashier_name} · Cashier</div>
+            </div>
+
+            <div className="cashier-header">
+              <div>
+                <span className="cashier-eyebrow">13 / BILL &amp; PAYMENT</span>
+                <h1 className="cashier-title">Bill &amp; Payment</h1>
+                <p className="cashier-subtitle">Review the itemised bill, choose a payment method and close the order.</p>
+              </div>
+              <button type="button" className="cashier-btn-header-back" onClick={() => alert("Returned to orders map.")}>
+                Back to order
+              </button>
+            </div>
+
+            <div className="cashier-main-content">
+              <div className="cashier-two-col">
+                <div className="cashier-card">
+                  <div className="cashier-card-banner">
+                    <span>Bill • {bill.table_no}</span>
+                    <span className="cashier-order-badge">Order #{bill.order_id}</span>
+                  </div>
+
+                  <div className="cashier-order-meta">
+                    <div className="cashier-order-meta-title">{bill.table_no} • {bill.guests} guests • {bill.waiter_name}</div>
+                    <div className="cashier-order-meta-sub">{bill.section} • Opened {bill.opened_at} • Bill requested {bill.bill_requested_at}</div>
+                  </div>
+
+                  <table className="cashier-table">
+                    <thead>
+                      <tr>
+                        <th>ITEM</th>
+                        <th style={{ textAlign: "center" }}>QTY</th>
+                        <th style={{ textAlign: "right" }}>PRICE</th>
+                        <th style={{ textAlign: "right" }}>TOTAL</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {bill.items.map((item) => (
+                        <tr key={item.order_item_id}>
+                          <td>
+                            <div className="cashier-item-name">
+                              <span>{item.name}</span>
+                              <span className="cashier-served-pill">Served {item.served_at}</span>
+                            </div>
+                          </td>
+                          <td style={{ textAlign: "center" }}>{item.quantity}</td>
+                          <td style={{ textAlign: "right" }}>${item.unit_price.toFixed(2)}</td>
+                          <td style={{ textAlign: "right", fontWeight: 700 }}>${item.total_price.toFixed(2)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                  <div className="cashier-table-count">6 items</div>
+
+                  {bill.order_notes && (
+                    <div className="cashier-notes-box">
+                      <div className="cashier-notes-label">ORDER NOTES</div>
+                      <div className="cashier-notes-content">{bill.order_notes}</div>
+                    </div>
+                  )}
+
+                  <div className="cashier-history-section">
+                    <button type="button" className="cashier-history-toggle" onClick={() => setShowHistory(!showHistory)}>
+                      <span>{showHistory ? "▼" : "▶"}</span>
+                      <span>Bill &amp; Order History ({bill.history.length} events)</span>
+                    </button>
+                    {showHistory && (
+                      <ul className="cashier-history-list">
+                        {bill.history.map((h, i) => (
+                          <li key={i}>
+                            <span className="cashier-history-time">{h.time}</span>
+                            <span>{h.text}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
+                  <div style={{ padding: "10px 20px 14px", fontSize: "0.775rem", color: "var(--cashier-text-muted)", borderTop: "1px solid var(--cashier-border-subtle)", display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ color: "var(--cashier-primary)", fontWeight: "bold" }}>🔒</span>
+                    <span>Order is frozen: no item changes permitted after bill request.</span>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="cashier-card cashier-summary-card">
+                    <div className="cashier-section-label">SUMMARY</div>
+                    <div className="cashier-summary-row">
+                      <span style={{ color: "var(--cashier-text-muted)" }}>Subtotal</span>
+                      <span style={{ fontWeight: 600 }}>${subtotal.toFixed(2)}</span>
+                    </div>
+
+                    {bill.promotion && (
+                      <div className="cashier-promo-row">
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <span className="cashier-promo-tag">{bill.promotion.code}</span>
+                          <span className="cashier-promo-label">{bill.promotion.label}</span>
+                        </div>
+                        <span className="cashier-promo-discount">-${discount.toFixed(2)}</span>
+                      </div>
+                    )}
+
+                    <div className="cashier-total-row">
+                      <span className="cashier-total-label">Total</span>
+                      <span className="cashier-total-amount">${total.toFixed(2)}</span>
+                    </div>
+                    <div style={{ fontSize: "0.72rem", color: "var(--cashier-text-muted)", textAlign: "right", marginTop: 2 }}>
+                      (Prices include applicable taxes)
+                    </div>
+                  </div>
+
+                  <div className="cashier-card cashier-payment-card">
+                    <div className="cashier-section-label">PAYMENT METHOD</div>
+                    <div className="cashier-methods-grid">
+                      <div className={`cashier-method-tile ${selectedMethod === "cash" ? "selected" : ""}`} onClick={() => setSelectedMethod("cash")}>
+                        <div className="cashier-method-icon-box"><span style={{ fontWeight: 700 }}>$</span></div>
+                        <span>Cash</span>
+                      </div>
+                      <div className={`cashier-method-tile ${selectedMethod === "card" ? "selected" : ""}`} onClick={() => setSelectedMethod("card")}>
+                        <div className="cashier-method-icon-box"><span style={{ width: 16, height: 2, background: "currentColor", borderRadius: 1 }} /></div>
+                        <span>Card</span>
+                      </div>
+                      <div className={`cashier-method-tile ${selectedMethod === "upi" ? "selected" : ""}`} onClick={() => setSelectedMethod("upi")}>
+                        <div className="cashier-method-icon-box"><span style={{ fontWeight: 800 }}>⚡</span></div>
+                        <span>UPI</span>
+                      </div>
+                    </div>
+
+                    <div className="cashier-method-selected-label">Selected: {selectedMethod === "card" ? "Card" : selectedMethod === "cash" ? "Cash" : "UPI"}</div>
+
+                    {selectedMethod === "cash" && (
+                      <div className="cashier-cash-tender-box">
+                        <label style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--cashier-text-muted)", textTransform: "uppercase", display: "block" }}>Cash Tendered</label>
+                        <div className="cashier-input-group">
+                          <span className="cashier-input-prefix">$</span>
+                          <input type="number" step="0.01" className="cashier-text-input" value={cashTendered} onChange={(e) => setCashTendered(e.target.value)} />
+                        </div>
+                        <div className="cashier-change-row">
+                          <span style={{ color: "var(--cashier-text-muted)" }}>Change Due:</span>
+                          <span style={{ fontWeight: 700, color: isTenderSufficient ? "var(--cashier-primary)" : "var(--cashier-danger)" }}>
+                            {isTenderSufficient ? `$${changeDue}` : "Insufficient cash"}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    <button type="button" className="cashier-btn cashier-btn-split" onClick={onNavigateToSplit}>Split Bill</button>
+                    <button type="button" className="cashier-btn cashier-btn-primary" disabled={selectedMethod === "cash" && !isTenderSufficient} onClick={() => onPayAndClose(selectedMethod)}>
+                      Pay ${total.toFixed(2)} &amp; Close Order
+                    </button>
+                    <button type="button" onClick={onSimulate409} style={{ background: "none", border: "none", color: "var(--cashier-danger)", fontSize: "0.75rem", cursor: "pointer", textDecoration: "underline", padding: 4 }}>
+                      Simulate API 409 (Double-Close Conflict)
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // ==========================================
+      // SCREEN 14 & 14.1: Split Bill & Mismatch
+      // ==========================================
+      function Screen14({ bill, initialMismatch, onConfirmSplit, onBackToBill }) {
+        const billTotal = bill.total_amount;
+        const [payerCount, setPayerCount] = useState(3);
+        const [splitMode, setSplitMode] = useState(initialMismatch ? "custom" : "equal");
+        const [payers, setPayers] = useState(
+          initialMismatch
+            ? [
+                { id: 1, name: "", amount: "19.05", method: "card" },
+                { id: 2, name: "", amount: "19.05", method: "cash" },
+                { id: 3, name: "", amount: "19.00", method: "upi" } // Short by $0.05!
+              ]
+            : [
+                { id: 1, name: "", amount: "19.05", method: "card" },
+                { id: 2, name: "", amount: "19.05", method: "cash" },
+                { id: 3, name: "", amount: "19.05", method: "upi" }
+              ]
+        );
+
+        const splitTotal = Number(payers.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0).toFixed(2));
+        const diff = Number((billTotal - splitTotal).toFixed(2));
+        const isMatch = Math.abs(diff) < 0.009;
+
+        const updateAmount = (index, val) => {
+          setSplitMode("custom");
+          const copy = [...payers];
+          copy[index].amount = val;
+          setPayers(copy);
+        };
+
+        const updateMethod = (index, val) => {
+          const copy = [...payers];
+          copy[index].method = val;
+          setPayers(copy);
+        };
+
+        return (
+          <div className="cashier-page-container">
+            <div className="cashier-system-bar">
+              <div className="cashier-system-title">Restaurant Table &amp; Kitchen Order Flow Simulator</div>
+              <div className="cashier-system-center">Cashier – Split Bill · {bill.table_no}</div>
+              <div className="cashier-system-user">{bill.cashier_name} · Cashier</div>
+            </div>
+
+            <div className="cashier-header">
+              <div>
+                <span className="cashier-eyebrow">14 / SPLIT BILL</span>
+                <h1 className="cashier-title">Split Bill</h1>
+                <p className="cashier-subtitle">Divide the bill among payers. Split totals must match the bill total.</p>
+              </div>
+              <button type="button" className="cashier-btn-header-back" onClick={onBackToBill}>Back to bill</button>
+            </div>
+
+            <div className="cashier-main-content">
+              <div className="cashier-two-col">
+                <div className="cashier-card">
+                  <div className="cashier-card-banner">
+                    <span>Split Bill • ${billTotal.toFixed(2)}</span>
+                    <span className="cashier-order-badge">Order #{bill.order_id}</span>
+                  </div>
+
+                  <div className="cashier-split-controls-row">
+                    <div className="cashier-split-into">
+                      <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--cashier-text-muted)" }}>SPLIT INTO</span>
+                      <div style={{ display: "flex", gap: 6 }}>
+                        {[2, 3, 4].map((num) => (
+                          <button key={num} type="button" className={`cashier-payer-num-btn ${payerCount === num ? "active" : ""}`} onClick={() => setPayerCount(num)}>
+                            {num}
+                          </button>
+                        ))}
+                      </div>
+                      <span style={{ color: "var(--cashier-text-muted)" }}>payers</span>
+                    </div>
+
+                    <div className="cashier-mode-toggle">
+                      <button type="button" className={`cashier-mode-tab ${splitMode === "equal" ? "active" : ""}`} onClick={() => {
+                        setSplitMode("equal");
+                        setPayers([
+                          { id: 1, name: "", amount: "19.05", method: "card" },
+                          { id: 2, name: "", amount: "19.05", method: "cash" },
+                          { id: 3, name: "", amount: "19.05", method: "upi" }
+                        ]);
+                      }}>
+                        Equal
+                      </button>
+                      <button type="button" className={`cashier-mode-tab ${splitMode === "custom" ? "active" : ""}`} onClick={() => setSplitMode("custom")}>
+                        Custom
+                      </button>
+                    </div>
+                  </div>
+
+                  <div style={{ padding: "4px 0 16px" }}>
+                    {payers.map((payer, idx) => {
+                      const isMismatchInput = !isMatch && idx === payers.length - 1;
+                      return (
+                        <div key={payer.id} className="cashier-payer-card">
+                          <div className="cashier-payer-info">
+                            <span className="cashier-payer-title">Payer {idx + 1}</span>
+                            <span style={{ fontSize: "0.75rem", color: "var(--cashier-text-muted)", marginTop: 2 }}>Name (optional)</span>
+                          </div>
+
+                          <div>
+                            <span className="cashier-payer-field-label">AMOUNT</span>
+                            <div className={`cashier-amount-input-box ${isMismatchInput ? "mismatch" : ""}`}>
+                              <span className="cashier-amount-currency">$</span>
+                              <input type="number" step="0.01" className="cashier-amount-field" value={payer.amount} onChange={(e) => updateAmount(idx, e.target.value)} />
+                            </div>
+                          </div>
+
+                          <div>
+                            <span className="cashier-payer-field-label">PAYMENT METHOD</span>
+                            <select className="cashier-select" value={payer.method} onChange={(e) => updateMethod(idx, e.target.value)}>
+                              <option value="card">Card</option>
+                              <option value="cash">Cash</option>
+                              <option value="upi">UPI</option>
+                            </select>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="cashier-card cashier-summary-card">
+                    <div className="cashier-section-label">SPLIT CHECK</div>
+                    <div className="cashier-summary-row">
+                      <span style={{ color: "var(--cashier-text-muted)" }}>Bill total</span>
+                      <span style={{ fontWeight: 700, fontSize: "1.1rem" }}>${billTotal.toFixed(2)}</span>
+                    </div>
+
+                    <div style={{ margin: "16px 0", borderTop: "1px dashed var(--cashier-border-subtle)", paddingTop: 12 }}>
+                      {payers.map((p, idx) => (
+                        <div key={p.id} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", marginBottom: 8, color: "var(--cashier-text-muted)" }}>
+                          <span>Payer {idx + 1}</span>
+                          <span style={{ fontWeight: 600, color: "var(--cashier-text-main)" }}>${(parseFloat(p.amount) || 0).toFixed(2)}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", paddingTop: 12, borderTop: "1px solid var(--cashier-border-subtle)" }}>
+                      <span style={{ fontWeight: 700, fontSize: "0.95rem" }}>Split total</span>
+                      <span style={{ fontSize: "1.25rem", fontWeight: 800, color: isMatch ? "var(--cashier-primary)" : "var(--cashier-danger)" }}>
+                        ${splitTotal.toFixed(2)}
+                      </span>
+                    </div>
+
+                    {isMatch ? (
+                      <div className="cashier-split-status match">
+                        <span>✓</span><span>Totals match</span>
+                      </div>
+                    ) : (
+                      <div className="cashier-split-status mismatch">
+                        <span>✗</span><span>Short by ${diff.toFixed(2)} – totals do not match</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="cashier-card" style={{ padding: 16 }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                      <button type="button" className="cashier-btn cashier-btn-primary" disabled={!isMatch} onClick={() => onConfirmSplit(payers)}>
+                        Confirm Split &amp; Pay
+                      </button>
+                      <button type="button" className="cashier-btn cashier-btn-secondary" onClick={onBackToBill}>
+                        Cancel
+                      </button>
+                    </div>
+                    <div className="cashier-split-caption">
+                      {isMatch ? "All payers set · ready to confirm" : "Confirm stays disabled until the totals match"}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // ==========================================
+      // SCREEN 15 & 15.1: Payment Confirmation & Receipt
+      // ==========================================
+      function Screen15({ bill, isAlreadyClosed, onBackToOrders, onToggleVariant }) {
+        const [showEmailModal, setShowEmailModal] = useState(false);
+        const [emailInput, setEmailInput] = useState("guest@example.com");
+        const [emailSent, setEmailSent] = useState(false);
+
+        return (
+          <div className="cashier-page-container">
+            <div className="cashier-system-bar">
+              <div className="cashier-system-title">Restaurant Table &amp; Kitchen Order Flow Simulator</div>
+              <div className="cashier-system-center">Cashier – Receipt · {bill.table_no}</div>
+              <div className="cashier-system-user">{bill.cashier_name} · Cashier</div>
+            </div>
+
+            <div className="cashier-header">
+              <div>
+                <span className="cashier-eyebrow">15 / RECEIPT</span>
+                <h1 className="cashier-title">Payment Confirmation</h1>
+                <p className="cashier-subtitle">
+                  {isAlreadyClosed
+                    ? "This order was already closed. No second payment was taken."
+                    : "Order closed. Print the receipt or return to the table map."}
+                </p>
+              </div>
+              <button type="button" className="cashier-btn-header-back" onClick={onBackToOrders}>Back to orders</button>
+            </div>
+
+            <div className="cashier-main-content">
+              <div className="cashier-confirmation-container">
+                {isAlreadyClosed ? (
+                  <>
+                    <div className="cashier-double-close-alert">
+                      <div className="cashier-alert-icon-circle">✕</div>
+                      <div>
+                        <h4 className="cashier-alert-heading">This order is already closed</h4>
+                        <p className="cashier-alert-desc">Paid at {bill.closed_at} by cashier {bill.cashier_name} (double-close blocked)</p>
+                      </div>
+                    </div>
+                    <div style={{ marginBottom: 20 }}>
+                      <h3 style={{ fontSize: "1.25rem", fontWeight: 700, margin: "0 0 4px" }}>Order #{bill.order_id} • {bill.table_no}</h3>
+                      <span style={{ display: "inline-block", padding: "2px 8px", backgroundColor: "#EFECE6", color: "var(--cashier-text-muted)", borderRadius: 4, fontSize: "0.75rem", fontWeight: 700 }}>
+                        Status: CLOSED
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="cashier-success-circle">✓</div>
+                    <h2 className="cashier-confirm-title">Payment successful</h2>
+                    <p className="cashier-confirm-subtitle">{bill.table_no} closed · Order #{bill.order_id}</p>
+                  </>
+                )}
+
+                <div className="cashier-receipt-paper">
+                  <div className="cashier-receipt-header">
+                    <div className="cashier-receipt-header-title">RECEIPT</div>
+                    <div className="cashier-receipt-header-meta">{bill.closed_at} · {bill.date_formatted} · Waiter {bill.waiter_name}</div>
+                  </div>
+                  <hr className="cashier-receipt-divider" />
+                  {bill.items.map((it) => (
+                    <div key={it.order_item_id} className="cashier-receipt-item-row">
+                      <span className="cashier-receipt-item-label">{it.quantity} × {it.name}</span>
+                      <span className="cashier-receipt-item-price">${it.total_price.toFixed(2)}</span>
+                    </div>
+                  ))}
+                  <hr className="cashier-receipt-divider" />
+                  <div className="cashier-receipt-subtotal-row">
+                    <span>Subtotal</span><span>${bill.subtotal.toFixed(2)}</span>
+                  </div>
+                  {bill.promotion && (
+                    <div className="cashier-receipt-discount-row">
+                      <span>Discount {bill.promotion.code}</span>
+                      <span>-${bill.promotion.discount_amount.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className="cashier-receipt-total-row">
+                    <span className="cashier-receipt-total-label">Total</span>
+                    <span className="cashier-receipt-total-price">${bill.total_amount.toFixed(2)}</span>
+                  </div>
+                  <div className="cashier-receipt-paid-by">Paid by: Card</div>
+                </div>
+
+                {isAlreadyClosed ? (
+                  <div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                      <button type="button" className="cashier-btn cashier-btn-secondary" onClick={() => window.print()}>View receipt</button>
+                      <button type="button" className="cashier-btn cashier-btn-primary" onClick={onBackToOrders}>Back to orders</button>
+                    </div>
+                    <div style={{ fontSize: "0.775rem", color: "var(--cashier-text-muted)", marginTop: 12 }}>
+                      Pay / Close actions are disabled for closed orders
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                      <button type="button" className="cashier-btn cashier-btn-secondary" style={{ color: "var(--cashier-primary)", borderColor: "var(--cashier-primary)" }} onClick={() => window.print()}>
+                        Print receipt
+                      </button>
+                      <button type="button" className="cashier-btn cashier-btn-primary" onClick={onBackToOrders}>Done</button>
+                    </div>
+                    <button type="button" className="cashier-btn cashier-btn-secondary" style={{ fontSize: "0.85rem", padding: 8 }} onClick={() => setShowEmailModal(true)}>
+                      ✉ Email receipt (simulated)
+                    </button>
+                  </div>
+                )}
+
+                <div style={{ marginTop: 20, borderTop: "1px dashed var(--cashier-border-subtle)", paddingTop: 12 }}>
+                  <button type="button" onClick={onToggleVariant} style={{ background: "none", border: "none", color: "var(--cashier-text-muted)", fontSize: "0.75rem", cursor: "pointer", textDecoration: "underline" }}>
+                    {isAlreadyClosed ? "← Switch to Screen 15 (Payment Success Wireframe)" : "→ Switch to Screen 15.1 (Bill Already Closed / 409 Wireframe)"}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {showEmailModal && (
+              <div className="cashier-modal-backdrop">
+                <div className="cashier-modal-box">
+                  <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: 8 }}>Email Receipt</h3>
+                  <p style={{ fontSize: "0.85rem", color: "var(--cashier-text-muted)", marginBottom: 16 }}>Simulate sending digital receipt for Order #{bill.order_id}.</p>
+                  {emailSent ? (
+                    <div style={{ padding: 16, backgroundColor: "var(--cashier-success-subtle)", color: "var(--cashier-success)", borderRadius: 6, fontWeight: 600 }}>
+                      ✓ Receipt emailed to {emailInput}!
+                    </div>
+                  ) : (
+                    <form onSubmit={(e) => { e.preventDefault(); setEmailSent(true); setTimeout(() => { setShowEmailModal(false); setEmailSent(false); }, 1500); }}>
+                      <input type="email" required value={emailInput} onChange={(e) => setEmailInput(e.target.value)} style={{ width: "100%", padding: "10px 12px", borderRadius: 6, border: "1px solid var(--cashier-border)", marginBottom: 16 }} />
+                      <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+                        <button type="button" className="cashier-btn cashier-btn-secondary" style={{ width: "auto" }} onClick={() => setShowEmailModal(false)}>Cancel</button>
+                        <button type="submit" className="cashier-btn cashier-btn-primary" style={{ width: "auto" }}>Send Receipt</button>
+                      </div>
+                    </form>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      // ==========================================
+      // Root App with Integrated Wireframe Switcher
+      // ==========================================
+      function App() {
+        const [screen, setScreen] = useState("screen13");
+        const [bill, setBill] = useState(INITIAL_BILL);
+
+        return (
+          <div>
+            <div className="cashier-wireframe-switcher">
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <strong style={{ color: "#FFF" }}>Wireframe Switcher:</strong>
+                <button type="button" className={`cashier-switcher-btn ${screen === "screen13" ? "active" : ""}`} onClick={() => setScreen("screen13")}>
+                  Screen 13 (Bill &amp; Pay)
+                </button>
+                <button type="button" className={`cashier-switcher-btn ${screen === "screen14" ? "active" : ""}`} onClick={() => setScreen("screen14")}>
+                  Screen 14 (Split Bill)
+                </button>
+                <button type="button" className={`cashier-switcher-btn ${screen === "screen14_1" ? "active" : ""}`} onClick={() => setScreen("screen14_1")}>
+                  Screen 14.1 (Split Mismatch)
+                </button>
+                <button type="button" className={`cashier-switcher-btn ${screen === "screen15" ? "active" : ""}`} onClick={() => setScreen("screen15")}>
+                  Screen 15 (Confirmation)
+                </button>
+                <button type="button" className={`cashier-switcher-btn ${screen === "screen15_1" ? "active" : ""}`} onClick={() => setScreen("screen15_1")}>
+                  Screen 15.1 (409 Closed)
+                </button>
+              </div>
+
+              <button type="button" onClick={() => { setBill(INITIAL_BILL); setScreen("screen13"); }} style={{ background: "none", border: "1px solid #6C757D", color: "#ADB5BD", borderRadius: 4, padding: "4px 8px", fontSize: "0.75rem", cursor: "pointer" }}>
+                Reset Demo State
+              </button>
+            </div>
+
+            {screen === "screen13" && (
+              <Screen13
+                bill={bill}
+                onNavigateToSplit={() => setScreen("screen14")}
+                onPayAndClose={(m) => setScreen("screen15")}
+                onSimulate409={() => setScreen("screen15_1")}
+              />
+            )}
+            {screen === "screen14" && (
+              <Screen14
+                bill={bill}
+                initialMismatch={false}
+                onConfirmSplit={() => setScreen("screen15")}
+                onBackToBill={() => setScreen("screen13")}
+              />
+            )}
+            {screen === "screen14_1" && (
+              <Screen14
+                bill={bill}
+                initialMismatch={true}
+                onConfirmSplit={() => setScreen("screen15")}
+                onBackToBill={() => setScreen("screen13")}
+              />
+            )}
+            {screen === "screen15" && (
+              <Screen15
+                bill={bill}
+                isAlreadyClosed={false}
+                onBackToOrders={() => setScreen("screen13")}
+                onToggleVariant={() => setScreen("screen15_1")}
+              />
+            )}
+            {screen === "screen15_1" && (
+              <Screen15
+                bill={bill}
+                isAlreadyClosed={true}
+                onBackToOrders={() => setScreen("screen13")}
+                onToggleVariant={() => setScreen("screen15")}
+              />
+            )}
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App />);
+    </script>
+  </body>
+</html>
