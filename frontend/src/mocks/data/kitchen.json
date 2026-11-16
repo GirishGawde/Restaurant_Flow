@@ -1,0 +1,242 @@
+[
+  {
+    "order_id": 1045,
+    "table_id": 3,
+    "table_label": "T-03",
+    "section": "Main Hall",
+    "guests": 2,
+    "waiter_name": "A. Smith",
+    "order_notes": null,
+    "guest_notes": null,
+    "ticket_status": "queued",
+    "board_column": "New",
+    "placed_at_offset_sec": 139,
+    "due_in_min": 15,
+    "has_issue": false,
+    "station_ids": [1, 3, 4],
+    "station_names": "Grill, Oven, Bar",
+    "items": [
+      { "ticket_id": 1, "order_item_id": 101, "item": "Classic Burger", "quantity": 2, "station": "Grill", "station_id": 1, "status": "queued", "note": null },
+      { "ticket_id": 2, "order_item_id": 102, "item": "Garlic Bread", "quantity": 1, "station": "Oven", "station_id": 3, "status": "queued", "note": null },
+      { "ticket_id": 3, "order_item_id": 103, "item": "Lemonade", "quantity": 1, "station": "Bar", "station_id": 4, "status": "queued", "note": null }
+    ]
+  },
+  {
+    "order_id": 1046,
+    "table_id": 5,
+    "table_label": "T-05",
+    "section": "Terrace",
+    "guests": 2,
+    "waiter_name": "A. Smith",
+    "order_notes": "Allergy: no nuts",
+    "guest_notes": null,
+    "ticket_status": "queued",
+    "board_column": "New",
+    "placed_at_offset_sec": 85,
+    "due_in_min": 15,
+    "has_issue": false,
+    "station_ids": [1, 2],
+    "station_names": "Grill, Cold",
+    "items": [
+      { "ticket_id": 4, "order_item_id": 104, "item": "Pasta Carbonara", "quantity": 1, "station": "Grill", "station_id": 1, "status": "queued", "note": null },
+      { "ticket_id": 5, "order_item_id": 105, "item": "Caesar Salad", "quantity": 1, "station": "Cold", "station_id": 2, "status": "queued", "note": "Allergy: no nuts" }
+    ]
+  },
+  {
+    "order_id": 1047,
+    "table_id": 11,
+    "table_label": "T-11",
+    "section": "Private",
+    "guests": 4,
+    "waiter_name": "M. Lee",
+    "order_notes": null,
+    "guest_notes": null,
+    "ticket_status": "queued",
+    "board_column": "New",
+    "placed_at_offset_sec": 48,
+    "due_in_min": 20,
+    "has_issue": false,
+    "station_ids": [1, 3, 4],
+    "station_names": "Grill, Oven, Bar",
+    "items": [
+      { "ticket_id": 6, "order_item_id": 106, "item": "Grilled Salmon", "quantity": 2, "station": "Grill", "station_id": 1, "status": "queued", "note": null },
+      { "ticket_id": 7, "order_item_id": 107, "item": "Lava Cake", "quantity": 2, "station": "Oven", "station_id": 3, "status": "queued", "note": null },
+      { "ticket_id": 8, "order_item_id": 108, "item": "Sparkling Water", "quantity": 1, "station": "Bar", "station_id": 4, "status": "queued", "note": null }
+    ]
+  },
+  {
+    "order_id": 1044,
+    "table_id": 2,
+    "table_label": "T-02",
+    "section": "Main Hall",
+    "guests": 2,
+    "waiter_name": "O. Kim",
+    "order_notes": "Well done, no onion",
+    "guest_notes": null,
+    "ticket_status": "cooking",
+    "board_column": "Preparing",
+    "placed_at_offset_sec": 965,
+    "due_in_min": 15,
+    "has_issue": false,
+    "station_ids": [1],
+    "station_names": "Grill",
+    "items": [
+      { "ticket_id": 9, "order_item_id": 109, "item": "Classic Burger", "quantity": 1, "station": "Grill", "station_id": 1, "status": "cooking", "note": "Well done, no onion" },
+      { "ticket_id": 10, "order_item_id": 110, "item": "Pasta Carbonara", "quantity": 2, "station": "Grill", "station_id": 1, "status": "cooking", "note": null }
+    ]
+  },
+  {
+    "order_id": 1042,
+    "table_id": 2,
+    "table_label": "T-02",
+    "section": "Main Hall",
+    "guests": 2,
+    "waiter_name": "A. Smith",
+    "order_notes": "Allergy: no nuts. Applies to the Caesar Salad and Garlic Bread. Flagged by A. Smith.",
+    "guest_notes": "Serve the salad first, then the mains together.",
+    "ticket_status": "cooking",
+    "board_column": "Preparing",
+    "placed_at_offset_sec": 708,
+    "due_in_min": 15,
+    "has_issue": false,
+    "station_ids": [1, 2, 3, 4],
+    "station_names": "Grill, Cold, Oven, Bar",
+    "items": [
+      { "ticket_id": 11, "order_item_id": 111, "item": "Grilled Salmon", "quantity": 2, "station": "Grill", "station_id": 1, "status": "ready", "note": null },
+      { "ticket_id": 12, "order_item_id": 112, "item": "Caesar Salad", "quantity": 1, "station": "Cold", "station_id": 2, "status": "ready", "note": "Allergy: no nuts" },
+      { "ticket_id": 13, "order_item_id": 113, "item": "Garlic Bread", "quantity": 1, "station": "Oven", "station_id": 3, "status": "cooking", "note": "No nuts" },
+      { "ticket_id": 14, "order_item_id": 114, "item": "Lemonade", "quantity": 1, "station": "Bar", "station_id": 4, "status": "queued", "note": null }
+    ]
+  },
+  {
+    "order_id": 1043,
+    "table_id": 7,
+    "table_label": "T-07",
+    "section": "Main Hall",
+    "guests": 3,
+    "waiter_name": "A. Smith",
+    "order_notes": null,
+    "guest_notes": null,
+    "ticket_status": "cooking",
+    "board_column": "Preparing",
+    "placed_at_offset_sec": 570,
+    "due_in_min": 15,
+    "has_issue": false,
+    "station_ids": [3, 4],
+    "station_names": "Oven, Bar",
+    "items": [
+      { "ticket_id": 15, "order_item_id": 115, "item": "Garlic Bread", "quantity": 2, "station": "Oven", "station_id": 3, "status": "cooking", "note": null },
+      { "ticket_id": 16, "order_item_id": 116, "item": "Lemonade", "quantity": 2, "station": "Bar", "station_id": 4, "status": "cooking", "note": null }
+    ]
+  },
+  {
+    "order_id": 1040,
+    "table_id": 1,
+    "table_label": "T-01",
+    "section": "Main Hall",
+    "guests": 4,
+    "waiter_name": "A. Smith",
+    "order_notes": null,
+    "guest_notes": null,
+    "ticket_status": "ready",
+    "board_column": "Ready to serve",
+    "placed_at_offset_sec": 1080,
+    "wait_offset_sec": 500,
+    "due_in_min": 15,
+    "has_issue": false,
+    "station_ids": [1, 3],
+    "station_names": "Grill, Oven",
+    "items": [
+      { "ticket_id": 17, "order_item_id": 117, "item": "Classic Burger", "quantity": 2, "station": "Grill", "station_id": 1, "status": "ready", "note": null },
+      { "ticket_id": 18, "order_item_id": 118, "item": "Garlic Bread", "quantity": 2, "station": "Oven", "station_id": 3, "status": "ready", "note": null }
+    ]
+  },
+  {
+    "order_id": 1041,
+    "table_id": 10,
+    "table_label": "T-10",
+    "section": "Terrace",
+    "guests": 3,
+    "waiter_name": "M. Lee",
+    "order_notes": null,
+    "guest_notes": null,
+    "ticket_status": "ready",
+    "board_column": "Ready to serve",
+    "placed_at_offset_sec": 840,
+    "wait_offset_sec": 75,
+    "due_in_min": 15,
+    "has_issue": false,
+    "station_ids": [1, 2],
+    "station_names": "Cold, Grill",
+    "items": [
+      { "ticket_id": 19, "order_item_id": 119, "item": "Caesar Salad", "quantity": 1, "station": "Cold", "station_id": 2, "status": "ready", "note": null },
+      { "ticket_id": 20, "order_item_id": 120, "item": "Grilled Salmon", "quantity": 1, "station": "Grill", "station_id": 1, "status": "ready", "note": null }
+    ]
+  },
+  {
+    "order_id": 1039,
+    "table_id": 4,
+    "table_label": "T-04",
+    "section": "Main Hall",
+    "guests": 2,
+    "waiter_name": "R. Patel",
+    "order_notes": null,
+    "guest_notes": null,
+    "ticket_status": "served",
+    "board_column": "Done",
+    "placed_at_offset_sec": 1800,
+    "done_offset_sec": 660,
+    "due_in_min": 15,
+    "has_issue": false,
+    "station_ids": [1, 4],
+    "station_names": "Grill, Bar",
+    "items": [
+      { "ticket_id": 21, "order_item_id": 121, "item": "Pasta Carbonara", "quantity": 2, "station": "Grill", "station_id": 1, "status": "served", "note": null },
+      { "ticket_id": 22, "order_item_id": 122, "item": "Lemonade", "quantity": 1, "station": "Bar", "station_id": 4, "status": "served", "note": null }
+    ]
+  },
+  {
+    "order_id": 1038,
+    "table_id": 8,
+    "table_label": "T-08",
+    "section": "Bar",
+    "guests": 1,
+    "waiter_name": "O. Kim",
+    "order_notes": null,
+    "guest_notes": null,
+    "ticket_status": "served",
+    "board_column": "Done",
+    "placed_at_offset_sec": 1500,
+    "done_offset_sec": 400,
+    "due_in_min": 10,
+    "has_issue": false,
+    "station_ids": [1, 4],
+    "station_names": "Grill, Bar",
+    "items": [
+      { "ticket_id": 23, "order_item_id": 123, "item": "Classic Burger", "quantity": 1, "station": "Grill", "station_id": 1, "status": "served", "note": null },
+      { "ticket_id": 24, "order_item_id": 124, "item": "Sparkling Water", "quantity": 1, "station": "Bar", "station_id": 4, "status": "served", "note": null }
+    ]
+  },
+  {
+    "order_id": 1037,
+    "table_id": 6,
+    "table_label": "T-06",
+    "section": "Terrace",
+    "guests": 4,
+    "waiter_name": "A. Smith",
+    "order_notes": null,
+    "guest_notes": null,
+    "ticket_status": "served",
+    "board_column": "Done",
+    "placed_at_offset_sec": 2100,
+    "done_offset_sec": 795,
+    "due_in_min": 20,
+    "has_issue": false,
+    "station_ids": [1, 3],
+    "station_names": "Grill, Oven",
+    "items": [
+      { "ticket_id": 25, "order_item_id": 125, "item": "Grilled Salmon", "quantity": 2, "station": "Grill", "station_id": 1, "status": "served", "note": null },
+      { "ticket_id": 26, "order_item_id": 126, "item": "Lava Cake", "quantity": 2, "station": "Oven", "station_id": 3, "status": "served", "note": null }
+    ]
+  }
+]
