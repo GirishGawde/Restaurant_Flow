@@ -30,6 +30,14 @@ import StaffManagement from "./pages/admin/StaffManagement";
 import Reports from "./pages/admin/Reports";
 import AuditLog from "./pages/admin/AuditLog";
 
+// Waiter pages (Module 2 - Ayush)
+import WaiterLayout from "./layouts/WaiterLayout";
+import TableMap from "./pages/waiter/TableMap";
+import OpenNewOrder from "./pages/waiter/OpenNewOrder";
+import MenuBrowser from "./pages/waiter/MenuBrowser";
+import OrderPanel from "./pages/waiter/OrderPanel";
+import MyOrders from "./pages/waiter/MyOrders";
+
 /**
  * Root index component that redirects to role home route if logged in,
  * or /login if unauthenticated.
@@ -106,73 +114,6 @@ export function App() {
                 element={
                   <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
                     <AuditLog />
-                  </ProtectedRoute>
-                }
-              />
-
-              {/* Module 2: Waiter Routes (Ayush) */}
-              <Route
-                path="/waiter/tables"
-                element={
-                  <ProtectedRoute allowedRoles={[ROLES.WAITER, ROLES.ADMIN]}>
-                    <PlaceholderPage
-                      screenNumber="4"
-                      title="Waiter: Table Map"
-                      owner="Ayush"
-                      description="Table status grid (free, occupied, reserved, needs_cleaning) with section filters."
-                    />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/waiter/orders/new"
-                element={
-                  <ProtectedRoute allowedRoles={[ROLES.WAITER, ROLES.ADMIN]}>
-                    <PlaceholderPage
-                      screenNumber="5"
-                      title="Waiter: Open New Order"
-                      owner="Ayush"
-                      description="Select table, specify guest count, add notes, and initialize order."
-                    />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/waiter/menu"
-                element={
-                  <ProtectedRoute allowedRoles={[ROLES.WAITER, ROLES.ADMIN]}>
-                    <PlaceholderPage
-                      screenNumber="6"
-                      title="Waiter: Menu Browser"
-                      owner="Ayush"
-                      description="Browse menu items with live search, ingredients search, and add draft items."
-                    />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/waiter/orders/:id"
-                element={
-                  <ProtectedRoute allowedRoles={[ROLES.WAITER, ROLES.ADMIN]}>
-                    <PlaceholderPage
-                      screenNumber="7"
-                      title="Waiter: Order Panel"
-                      owner="Ayush"
-                      description="Order review, item quantity modifications, Send to Kitchen, conflict detection, and Request Bill."
-                    />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/waiter/orders"
-                element={
-                  <ProtectedRoute allowedRoles={[ROLES.WAITER, ROLES.ADMIN]}>
-                    <PlaceholderPage
-                      screenNumber="10"
-                      title="Waiter: My Orders"
-                      owner="Ayush"
-                      description="Filter and search orders by status, table, and date."
-                    />
                   </ProtectedRoute>
                 }
               />
@@ -255,6 +196,50 @@ export function App() {
                       owner="Sakshi"
                       description="Printable receipt and payment settlement verification."
                     />
+                  </ProtectedRoute>
+                }
+              />
+            </Route>
+
+            {/* Module 2: Waiter Routes (Ayush) with dedicated WaiterLayout */}
+            <Route element={<WaiterLayout />}>
+              <Route
+                path="/waiter/tables"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.WAITER, ROLES.ADMIN]}>
+                    <TableMap />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/waiter/orders/new"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.WAITER, ROLES.ADMIN]}>
+                    <OpenNewOrder />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/waiter/menu"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.WAITER, ROLES.ADMIN]}>
+                    <MenuBrowser />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/waiter/orders/:id"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.WAITER, ROLES.ADMIN]}>
+                    <OrderPanel />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/waiter/orders"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.WAITER, ROLES.ADMIN]}>
+                    <MyOrders />
                   </ProtectedRoute>
                 }
               />

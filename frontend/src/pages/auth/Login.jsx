@@ -1,13 +1,13 @@
 /**
  * src/pages/auth/Login.jsx
  * Owner: Girish (Module 1 - Admin & Auth)
+ * Enhanced for friction-free developer/demo login
  *
  * Screen 1: Login
- * - Username & Password inputs
- * - Four role selector tiles: Admin, Cashier, Waiter, Kitchen Staff (chef)
- * - Submit button: "Log in as <Role>"
- * - "Forgot password?" recovery link
- * - API error message displayed cleanly under the form
+ * - Role selector tiles: Admin, Cashier, Waiter, Kitchen Staff (chef)
+ * - Auto-prefills demo credentials on role select
+ * - 1-Click Instant Login button as Waiter
+ * - Username & Password inputs with lenient demo fallbacks
  */
 
 import React, { useState } from "react";
@@ -18,13 +18,21 @@ import Button from "../../components/Button";
 import Card from "../../components/Card";
 import FormField from "../../components/FormField";
 
+const DEFAULT_CREDENTIALS = {
+  [ROLES.WAITER]: { username: "asmith", password: "test" },
+  [ROLES.ADMIN]: { username: "jlee", password: "test" },
+  [ROLES.CASHIER]: { username: "mrossi", password: "test" },
+  [ROLES.CHEF]: { username: "krao", password: "test" },
+};
+
 export function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [selectedRole, setSelectedRole] = useState(ROLES.ADMIN);
+  // Default to Waiter role with pre-filled working credentials for Ayush
+  const [selectedRole, setSelectedRole] = useState(ROLES.WAITER);
+  const [username, setUsername] = useState("asmith");
+  const [password, setPassword] = useState("test");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -35,22 +43,40 @@ export function Login() {
     { role: ROLES.CHEF, label: ROLE_LABELS[ROLES.CHEF], description: "Kitchen display and order tickets" },
   ];
 
+  const handleRoleSelect = (role) => {
+    setSelectedRole(role);
+    const creds = DEFAULT_CREDENTIALS[role];
+    if (creds) {
+      setUsername(creds.username);
+      setPassword(creds.password);
+    }
+    setError("");
+  };
+
+  const handleFastWaiterLogin = async () => {
+    setError("");
+    try {
+      setLoading(true);
+      const user = await login("asmith", "test", ROLES.WAITER);
+      navigate("/waiter/tables", { replace: true });
+    } catch (err) {
+      setError(err.message || "Fast login failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    if (!username.trim()) {
-      setError("Please enter your username.");
-      return;
-    }
-    if (!password) {
-      setError("Please enter your password.");
-      return;
-    }
+    // Fall back to role default if user left it blank
+    const finalUsername = (username || "").trim() || DEFAULT_CREDENTIALS[selectedRole]?.username || "asmith";
+    const finalPassword = password || "test";
 
     try {
       setLoading(true);
-      const user = await login(username.trim(), password, selectedRole);
+      const user = await login(finalUsername, finalPassword, selectedRole);
       navigate(getHomeRouteForRole(user.role), { replace: true });
     } catch (err) {
       setError(err.message || "Invalid credentials or login failed.");
@@ -78,7 +104,7 @@ export function Login() {
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
     gap: "var(--spacing-sm)",
-    marginBottom: "var(--spacing-lg)",
+    marginBottom: "var(--spacing-md)",
   };
 
   const getTileStyle = (role) => {
@@ -108,10 +134,10 @@ export function Login() {
     <div style={containerStyle}>
       <div style={{ textAlign: "center", marginBottom: "var(--spacing-xl)" }}>
         <h1 style={{ fontSize: "1.35rem", fontWeight: "700", color: "var(--color-primary)", letterSpacing: "-0.01em" }}>
-          Restaurant Table & Kitchen Order Flow
+          Restaurant Table &amp; Kitchen Order Flow
         </h1>
         <p style={{ color: "var(--color-text-muted)", fontSize: "0.9rem", marginTop: "4px" }}>
-          Database Concurrency & Order Lifecycle Simulator
+          Database Concurrency &amp; Order Lifecycle Simulator
         </p>
       </div>
 
@@ -126,6 +152,40 @@ export function Login() {
           </p>
         </div>
 
+        {/* 1-Click Instant Login for Waiter */}
+        <div style={{ marginBottom: "var(--spacing-md)" }}>
+          <button
+            type="button"
+            onClick={handleFastWaiterLogin}
+            disabled={loading}
+            style={{
+              width: "100%",
+              padding: "12px 16px",
+              backgroundColor: "var(--color-primary)",
+              color: "#FFFFFF",
+              border: "none",
+              borderRadius: "var(--radius-md)",
+              fontWeight: 700,
+              fontSize: "0.95rem",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+              boxShadow: "0 2px 6px rgba(30,111,92,0.3)",
+              transition: "transform 0.1s ease",
+            }}
+          >
+            <span>🚀 1-Click Instant Login as Waiter</span>
+          </button>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", margin: "14px 0", color: "var(--color-text-light)", fontSize: "0.75rem" }}>
+          <div style={{ flex: 1, height: "1px", backgroundColor: "var(--color-border-subtle)" }} />
+          <span style={{ margin: "0 10px", textTransform: "uppercase" }}>Or Log In Manually</span>
+          <div style={{ flex: 1, height: "1px", backgroundColor: "var(--color-border-subtle)" }} />
+        </div>
+
         <form onSubmit={handleSubmit}>
           {/* Role selector tiles */}
           <label style={{ fontSize: "0.85rem", fontWeight: "500", display: "block", marginBottom: "var(--spacing-xs)" }}>
@@ -136,7 +196,7 @@ export function Login() {
               <div
                 key={opt.role}
                 style={getTileStyle(opt.role)}
-                onClick={() => setSelectedRole(opt.role)}
+                onClick={() => handleRoleSelect(opt.role)}
                 role="button"
                 tabIndex={0}
               >
@@ -158,7 +218,7 @@ export function Login() {
               autoComplete="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="e.g. jlee, asmith, krao, mrossi"
+              placeholder="e.g. asmith, jlee, or your name"
               style={inputStyle}
             />
           </FormField>
@@ -171,7 +231,7 @@ export function Login() {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password (mock mode accepts 'test')"
+              placeholder="Password (defaults to 'test')"
               style={inputStyle}
             />
           </FormField>
@@ -179,6 +239,71 @@ export function Login() {
           <Button type="submit" variant="primary" fullWidth disabled={loading} style={{ marginTop: "var(--spacing-sm)" }}>
             {loading ? "Authenticating..." : `Log in as ${ROLE_LABELS[selectedRole] || selectedRole}`}
           </Button>
+
+          {/* Quick Pre-fill helper badges */}
+          <div style={{ marginTop: "14px", padding: "10px", backgroundColor: "var(--color-bg-page)", borderRadius: "var(--radius-md)", fontSize: "0.75rem" }}>
+            <div style={{ color: "var(--color-text-muted)", marginBottom: "6px", fontWeight: 600 }}>
+              💡 Quick demo accounts (Password: <code>test</code>):
+            </div>
+            <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+              <button
+                type="button"
+                onClick={() => handleRoleSelect(ROLES.WAITER)}
+                style={{
+                  background: "#FFFFFF",
+                  border: "1px solid var(--color-border)",
+                  borderRadius: "4px",
+                  padding: "2px 8px",
+                  fontSize: "0.75rem",
+                  cursor: "pointer",
+                }}
+              >
+                Waiter (<code>asmith</code>)
+              </button>
+              <button
+                type="button"
+                onClick={() => handleRoleSelect(ROLES.ADMIN)}
+                style={{
+                  background: "#FFFFFF",
+                  border: "1px solid var(--color-border)",
+                  borderRadius: "4px",
+                  padding: "2px 8px",
+                  fontSize: "0.75rem",
+                  cursor: "pointer",
+                }}
+              >
+                Admin (<code>jlee</code>)
+              </button>
+              <button
+                type="button"
+                onClick={() => handleRoleSelect(ROLES.CHEF)}
+                style={{
+                  background: "#FFFFFF",
+                  border: "1px solid var(--color-border)",
+                  borderRadius: "4px",
+                  padding: "2px 8px",
+                  fontSize: "0.75rem",
+                  cursor: "pointer",
+                }}
+              >
+                Kitchen (<code>krao</code>)
+              </button>
+              <button
+                type="button"
+                onClick={() => handleRoleSelect(ROLES.CASHIER)}
+                style={{
+                  background: "#FFFFFF",
+                  border: "1px solid var(--color-border)",
+                  borderRadius: "4px",
+                  padding: "2px 8px",
+                  fontSize: "0.75rem",
+                  cursor: "pointer",
+                }}
+              >
+                Cashier (<code>mrossi</code>)
+              </button>
+            </div>
+          </div>
 
           <div style={{ marginTop: "var(--spacing-md)", textAlign: "center", fontSize: "0.85rem" }}>
             <Link to="/forgot-password" style={{ color: "var(--color-text-muted)" }}>

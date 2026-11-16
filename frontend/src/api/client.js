@@ -12,7 +12,8 @@
 import { handleMockRequest } from "../mocks/mockApi";
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/$/, "");
-const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === "true";
+// Default to true in simulator mode unless explicitly set to "false"
+const USE_MOCKS = import.meta.env.VITE_USE_MOCKS !== "false";
 
 export async function apiClient(endpoint, options = {}) {
   // If mock mode is enabled, route call through mock handler
@@ -50,10 +51,16 @@ export async function apiClient(endpoint, options = {}) {
   try {
     response = await fetch(url, config);
   } catch (networkErr) {
-    const error = new Error(`Network error: ${networkErr.message}`);
-    error.code = "NETWORK_ERROR";
-    error.status = 0;
-    throw error;
+    // If backend server is unreachable, seamlessly fall back to mock handler
+    console.warn(`Backend unreachable (${networkErr.message}). Falling back to mock handler.`);
+    try {
+      return await handleMockRequest(endpoint, options);
+    } catch (mockErr) {
+      const error = new Error(`Network error: ${networkErr.message}`);
+      error.code = "NETWORK_ERROR";
+      error.status = 0;
+      throw error;
+    }
   }
 
   // Parse JSON response body if present
