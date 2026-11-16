@@ -46,6 +46,9 @@ import TicketDetail from "./pages/kitchen/TicketDetail";
 import StationsManagement from "./pages/kitchen/StationsManagement";
 import KitchenConcurrencyDemo from "./pages/kitchen/KitchenConcurrencyDemo";
 
+// Cashier pages (Module 4 - Sakshi)
+import { CashierApp } from "../cashier/CashierApp";
+
 /**
  * Root index component that redirects to role home route if logged in,
  * or /login if unauthenticated.
@@ -165,12 +168,7 @@ export function App() {
                 path="/cashier/bills"
                 element={
                   <ProtectedRoute allowedRoles={[ROLES.CASHIER, ROLES.ADMIN]}>
-                    <PlaceholderPage
-                      screenNumber="13"
-                      title="Cashier: Open Bills List"
-                      owner="Sakshi"
-                      description="List of unpaid bills waiting for settlement."
-                    />
+                    <CashierApp />
                   </ProtectedRoute>
                 }
               />
@@ -178,12 +176,7 @@ export function App() {
                 path="/cashier/bills/:orderId"
                 element={
                   <ProtectedRoute allowedRoles={[ROLES.CASHIER, ROLES.ADMIN]}>
-                    <PlaceholderPage
-                      screenNumber="13"
-                      title="Cashier: Bill and Payment"
-                      owner="Sakshi"
-                      description="Detailed bill review, promotion code application, and single-payer checkout."
-                    />
+                    <CashierApp />
                   </ProtectedRoute>
                 }
               />
@@ -191,12 +184,7 @@ export function App() {
                 path="/cashier/bills/:id/split"
                 element={
                   <ProtectedRoute allowedRoles={[ROLES.CASHIER, ROLES.ADMIN]}>
-                    <PlaceholderPage
-                      screenNumber="14"
-                      title="Cashier: Split Bill"
-                      owner="Sakshi"
-                      description="Split bill between multiple guests with transaction consistency validation."
-                    />
+                    <CashierApp />
                   </ProtectedRoute>
                 }
               />
@@ -204,12 +192,7 @@ export function App() {
                 path="/cashier/receipt/:billId"
                 element={
                   <ProtectedRoute allowedRoles={[ROLES.CASHIER, ROLES.ADMIN]}>
-                    <PlaceholderPage
-                      screenNumber="15"
-                      title="Cashier: Payment Confirmation & Receipt"
-                      owner="Sakshi"
-                      description="Printable receipt and payment settlement verification."
-                    />
+                    <CashierApp />
                   </ProtectedRoute>
                 }
               />
