@@ -1,7 +1,4 @@
 /**
- * src/components/Button.jsx
- * Owner: Girish (Module 1 - Admin & Auth)
- *
  * Reusable button supporting variants:
  * - 'primary': dark green (#1E6F5C)
  * - 'secondary': clean white card with subtle border

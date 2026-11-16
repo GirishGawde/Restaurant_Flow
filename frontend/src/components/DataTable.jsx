@@ -1,13 +1,3 @@
-/**
- * src/components/DataTable.jsx
- * Owner: Girish (Module 1 - Admin & Auth)
- *
- * Lightweight table component for tabular data display.
- * Props:
- * - columns: Array of { key, label, render?, align? }
- * - rows: Array of row objects
- * - emptyMessage: String shown when rows array is empty
- */
 
 import React from "react";
 

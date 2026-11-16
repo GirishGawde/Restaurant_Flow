@@ -1,12 +1,3 @@
-/**
- * src/auth/ProtectedRoute.jsx
- * Owner: Girish (Module 1 - Admin & Auth)
- *
- * Route guard component:
- * 1. If user is not logged in -> redirect to /login.
- * 2. If user's role is not in allowedRoles -> redirect to user's role home screen.
- * 3. Otherwise renders children or <Outlet />.
- */
 
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";

@@ -1,10 +1,3 @@
-/**
- * src/components/Card.jsx
- * Owner: Girish (Module 1 - Admin & Auth)
- *
- * White card surface with thin light border matching the Figma aesthetic.
- */
-
 import React from "react";
 
 export function Card({

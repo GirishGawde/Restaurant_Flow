@@ -1,9 +1,4 @@
-/**
- * src/components/FormField.jsx
- * Owner: Girish (Module 1 - Admin & Auth)
- *
- * Form field wrapper providing consistent layout for labels, inputs, errors, and hints.
- */
+
 
 import React from "react";
 

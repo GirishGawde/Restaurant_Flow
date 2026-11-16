@@ -1,13 +1,3 @@
-/**
- * src/auth/AuthContext.jsx
- * Owner: Girish (Module 1 - Admin & Auth)
- *
- * React context provider managing:
- * - Current logged-in user and token (persisted in sessionStorage)
- * - login() and logout() functions
- * - Active role helper
- */
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { login as apiLogin } from "../api/auth";
 
