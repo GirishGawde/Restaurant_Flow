@@ -2,10 +2,10 @@
  * src/App.jsx
  * Owner: Girish (Module 1 - Admin & Auth)
  *
- * Application routing configuration implementing all 20 screens from docs/screens.md.
- * - Wraps authenticated routes in ProtectedRoute with role authorization.
- * - Displays PlaceholderPage for screens pending teammate implementation.
- * - Redirects "/" to the logged-in staff member's home screen or /login.
+ * Application routing configuration implementing all 20 screens from docs/screens.md:
+ * - Module 1 (Girish): Login, ForgotPassword, ResetPassword, Profile, Dashboard, MenuManagement, StaffManagement, Reports, AuditLog
+ * - Modules 2, 3, 4 (Ayush, Diya, Sakshi): Waiter, Kitchen, Cashier placeholder pages
+ * - Root redirector to active role home screen or /login
  */
 
 import React from "react";
@@ -17,11 +17,18 @@ import RoleLayout from "./layouts/RoleLayout";
 import { ROLES, getHomeRouteForRole } from "./auth/roles";
 import PlaceholderPage from "./components/PlaceholderPage";
 
-// Authentication pages
+// Authentication pages (Module 1 - Girish)
 import Login from "./pages/auth/Login";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
 import Profile from "./pages/auth/Profile";
+
+// Admin pages (Module 1 - Girish)
+import Dashboard from "./pages/admin/Dashboard";
+import MenuManagement from "./pages/admin/MenuManagement";
+import StaffManagement from "./pages/admin/StaffManagement";
+import Reports from "./pages/admin/Reports";
+import AuditLog from "./pages/admin/AuditLog";
 
 /**
  * Root index component that redirects to role home route if logged in,
@@ -66,12 +73,7 @@ export function App() {
                 path="/admin/dashboard"
                 element={
                   <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
-                    <PlaceholderPage
-                      screenNumber="16"
-                      title="Manager Dashboard"
-                      owner="Girish"
-                      description="Dashboard showing live table statuses, active orders, and kitchen load statistics."
-                    />
+                    <Dashboard />
                   </ProtectedRoute>
                 }
               />
@@ -79,12 +81,7 @@ export function App() {
                 path="/admin/menu"
                 element={
                   <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
-                    <PlaceholderPage
-                      screenNumber="17"
-                      title="Menu Management"
-                      owner="Girish"
-                      description="Create, update, toggle active status, and assign stations for menu items."
-                    />
+                    <MenuManagement />
                   </ProtectedRoute>
                 }
               />
@@ -92,12 +89,7 @@ export function App() {
                 path="/admin/staff"
                 element={
                   <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
-                    <PlaceholderPage
-                      screenNumber="18"
-                      title="Staff Management"
-                      owner="Girish"
-                      description="List staff accounts, assign roles, and activate or deactivate user logins."
-                    />
+                    <StaffManagement />
                   </ProtectedRoute>
                 }
               />
@@ -105,12 +97,7 @@ export function App() {
                 path="/admin/reports"
                 element={
                   <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
-                    <PlaceholderPage
-                      screenNumber="19"
-                      title="Sales & Operations Reports"
-                      owner="Girish"
-                      description="Business reports: sales by day, best-sellers, table turnover, and waiter performance."
-                    />
+                    <Reports />
                   </ProtectedRoute>
                 }
               />
@@ -118,12 +105,7 @@ export function App() {
                 path="/admin/audit"
                 element={
                   <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
-                    <PlaceholderPage
-                      screenNumber="20"
-                      title="Audit Log & Chain Verification"
-                      owner="Girish"
-                      description="Tamper-evident audit log of all database mutations with cryptographic hash chain verification."
-                    />
+                    <AuditLog />
                   </ProtectedRoute>
                 }
               />

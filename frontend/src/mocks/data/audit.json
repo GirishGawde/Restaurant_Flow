@@ -1,0 +1,341 @@
+{
+  "verification": {
+    "status": "verified",
+    "entries_checked": 30,
+    "valid": true,
+    "algorithm": "SHA-256",
+    "last_verified": "2026-11-16T00:30:00Z"
+  },
+  "entries": [
+    {
+      "log_id": 30,
+      "table_name": "orders",
+      "record_id": "1045",
+      "action": "UPDATE",
+      "old_value": { "status": "served", "version": 3 },
+      "new_value": { "status": "bill_requested", "version": 4 },
+      "changed_by": "A. Smith",
+      "changed_at": "2026-11-15T19:28:10Z",
+      "hash": "a1b2c3d4e5f67890123456789abcdef0123456789abcdef0123456789abcdef0"
+    },
+    {
+      "log_id": 29,
+      "table_name": "kitchen_ticket",
+      "record_id": "402",
+      "action": "UPDATE",
+      "old_value": { "status": "cooking" },
+      "new_value": { "status": "ready" },
+      "changed_by": "K. Rao",
+      "changed_at": "2026-11-15T19:25:40Z",
+      "hash": "b2c3d4e5f67890123456789abcdef0123456789abcdef0123456789abcdef0a"
+    },
+    {
+      "log_id": 28,
+      "table_name": "order_item",
+      "record_id": "890",
+      "action": "INSERT",
+      "old_value": null,
+      "new_value": { "item_id": 13, "quantity": 1, "status": "sent" },
+      "changed_by": "M. Chen",
+      "changed_at": "2026-11-15T19:22:15Z",
+      "hash": "c3d4e5f67890123456789abcdef0123456789abcdef0123456789abcdef0ab1"
+    },
+    {
+      "log_id": 27,
+      "table_name": "orders",
+      "record_id": "1046",
+      "action": "INSERT",
+      "old_value": null,
+      "new_value": { "table_id": 17, "guests": 2, "status": "open" },
+      "changed_by": "M. Chen",
+      "changed_at": "2026-11-15T19:20:00Z",
+      "hash": "d4e5f67890123456789abcdef0123456789abcdef0123456789abcdef0ab12"
+    },
+    {
+      "log_id": 26,
+      "table_name": "menu_item",
+      "record_id": "14",
+      "action": "UPDATE",
+      "old_value": { "status": "active" },
+      "new_value": { "status": "sold_out" },
+      "changed_by": "J. Lee",
+      "changed_at": "2026-11-15T19:15:30Z",
+      "hash": "e5f67890123456789abcdef0123456789abcdef0123456789abcdef0ab123"
+    },
+    {
+      "log_id": 25,
+      "table_name": "payment",
+      "record_id": "512",
+      "action": "INSERT",
+      "old_value": null,
+      "new_value": { "bill_id": 210, "amount": 64.50, "method": "card" },
+      "changed_by": "M. Rossi",
+      "changed_at": "2026-11-15T19:10:45Z",
+      "hash": "f67890123456789abcdef0123456789abcdef0123456789abcdef0ab1234"
+    },
+    {
+      "log_id": 24,
+      "table_name": "orders",
+      "record_id": "1040",
+      "action": "UPDATE",
+      "old_value": { "status": "bill_requested" },
+      "new_value": { "status": "closed" },
+      "changed_by": "M. Rossi",
+      "changed_at": "2026-11-15T19:11:00Z",
+      "hash": "07890123456789abcdef0123456789abcdef0123456789abcdef0ab12345"
+    },
+    {
+      "log_id": 23,
+      "table_name": "restaurant_table",
+      "record_id": "3",
+      "action": "UPDATE",
+      "old_value": { "status": "occupied" },
+      "new_value": { "status": "needs_cleaning" },
+      "changed_by": "M. Rossi",
+      "changed_at": "2026-11-15T19:11:02Z",
+      "hash": "1890123456789abcdef0123456789abcdef0123456789abcdef0ab123456"
+    },
+    {
+      "log_id": 22,
+      "table_name": "kitchen_ticket",
+      "record_id": "401",
+      "action": "UPDATE",
+      "old_value": { "status": "queued" },
+      "new_value": { "status": "cooking" },
+      "changed_by": "K. Rao",
+      "changed_at": "2026-11-15T19:08:12Z",
+      "hash": "290123456789abcdef0123456789abcdef0123456789abcdef0ab1234567"
+    },
+    {
+      "log_id": 21,
+      "table_name": "order_item",
+      "record_id": "889",
+      "action": "UPDATE",
+      "old_value": { "quantity": 1 },
+      "new_value": { "quantity": 2 },
+      "changed_by": "A. Smith",
+      "changed_at": "2026-11-15T19:02:40Z",
+      "hash": "30123456789abcdef0123456789abcdef0123456789abcdef0ab12345678"
+    },
+    {
+      "log_id": 20,
+      "table_name": "orders",
+      "record_id": "1041",
+      "action": "UPDATE",
+      "old_value": { "status": "open", "version": 1 },
+      "new_value": { "status": "in_kitchen", "version": 2 },
+      "changed_by": "A. Smith",
+      "changed_at": "2026-11-15T18:58:30Z",
+      "hash": "4123456789abcdef0123456789abcdef0123456789abcdef0ab123456789"
+    },
+    {
+      "log_id": 19,
+      "table_name": "staff",
+      "record_id": "00000000-0000-0000-0000-000000000006",
+      "action": "UPDATE",
+      "old_value": { "is_active": true },
+      "new_value": { "is_active": false },
+      "changed_by": "J. Lee",
+      "changed_at": "2026-11-15T18:50:00Z",
+      "hash": "523456789abcdef0123456789abcdef0123456789abcdef0ab123456789a"
+    },
+    {
+      "log_id": 18,
+      "table_name": "orders",
+      "record_id": "1044",
+      "action": "INSERT",
+      "old_value": null,
+      "new_value": { "table_id": 13, "guests": 4, "status": "open" },
+      "changed_by": "M. Chen",
+      "changed_at": "2026-11-15T18:45:00Z",
+      "hash": "63456789abcdef0123456789abcdef0123456789abcdef0ab123456789ab"
+    },
+    {
+      "log_id": 17,
+      "table_name": "restaurant_table",
+      "record_id": "13",
+      "action": "UPDATE",
+      "old_value": { "status": "free" },
+      "new_value": { "status": "occupied" },
+      "changed_by": "M. Chen",
+      "changed_at": "2026-11-15T18:45:01Z",
+      "hash": "7456789abcdef0123456789abcdef0123456789abcdef0ab123456789abc"
+    },
+    {
+      "log_id": 16,
+      "table_name": "kitchen_ticket",
+      "record_id": "400",
+      "action": "UPDATE",
+      "old_value": { "status": "ready" },
+      "new_value": { "status": "served" },
+      "changed_by": "K. Rao",
+      "changed_at": "2026-11-15T18:40:22Z",
+      "hash": "856789abcdef0123456789abcdef0123456789abcdef0ab123456789abcd"
+    },
+    {
+      "log_id": 15,
+      "table_name": "menu_item",
+      "record_id": "6",
+      "action": "UPDATE",
+      "old_value": { "price": 14.50 },
+      "new_value": { "price": 15.00 },
+      "changed_by": "J. Lee",
+      "changed_at": "2026-11-15T18:30:15Z",
+      "hash": "96789abcdef0123456789abcdef0123456789abcdef0ab123456789abcde"
+    },
+    {
+      "log_id": 14,
+      "table_name": "order_item",
+      "record_id": "888",
+      "action": "INSERT",
+      "old_value": null,
+      "new_value": { "item_id": 5, "quantity": 1, "status": "sent" },
+      "changed_by": "A. Smith",
+      "changed_at": "2026-11-15T18:22:10Z",
+      "hash": "a789abcdef0123456789abcdef0123456789abcdef0ab123456789abcdef"
+    },
+    {
+      "log_id": 13,
+      "table_name": "orders",
+      "record_id": "1043",
+      "action": "INSERT",
+      "old_value": null,
+      "new_value": { "table_id": 6, "guests": 2, "status": "open" },
+      "changed_by": "A. Smith",
+      "changed_at": "2026-11-15T18:15:00Z",
+      "hash": "b89abcdef0123456789abcdef0123456789abcdef0ab123456789abcdef0"
+    },
+    {
+      "log_id": 12,
+      "table_name": "restaurant_table",
+      "record_id": "6",
+      "action": "UPDATE",
+      "old_value": { "status": "free" },
+      "new_value": { "status": "occupied" },
+      "changed_by": "A. Smith",
+      "changed_at": "2026-11-15T18:15:01Z",
+      "hash": "c9abcdef0123456789abcdef0123456789abcdef0ab123456789abcdef01"
+    },
+    {
+      "log_id": 11,
+      "table_name": "kitchen_ticket",
+      "record_id": "399",
+      "action": "INSERT",
+      "old_value": null,
+      "new_value": { "station_id": 1, "status": "queued" },
+      "changed_by": "A. Smith",
+      "changed_at": "2026-11-15T18:10:45Z",
+      "hash": "dabcdef0123456789abcdef0123456789abcdef0ab123456789abcdef012"
+    },
+    {
+      "log_id": 10,
+      "table_name": "orders",
+      "record_id": "1042",
+      "action": "INSERT",
+      "old_value": null,
+      "new_value": { "table_id": 5, "guests": 4, "status": "open" },
+      "changed_by": "M. Chen",
+      "changed_at": "2026-11-15T18:05:00Z",
+      "hash": "eabcdef0123456789abcdef0123456789abcdef0ab123456789abcdef013"
+    },
+    {
+      "log_id": 9,
+      "table_name": "restaurant_table",
+      "record_id": "5",
+      "action": "UPDATE",
+      "old_value": { "status": "free" },
+      "new_value": { "status": "occupied" },
+      "changed_by": "M. Chen",
+      "changed_at": "2026-11-15T18:05:01Z",
+      "hash": "fabcdef0123456789abcdef0123456789abcdef0ab123456789abcdef014"
+    },
+    {
+      "log_id": 8,
+      "table_name": "orders",
+      "record_id": "1041",
+      "action": "INSERT",
+      "old_value": null,
+      "new_value": { "table_id": 2, "guests": 2, "status": "open" },
+      "changed_by": "A. Smith",
+      "changed_at": "2026-11-15T18:00:00Z",
+      "hash": "0bcdef0123456789abcdef0123456789abcdef0ab123456789abcdef0145"
+    },
+    {
+      "log_id": 7,
+      "table_name": "restaurant_table",
+      "record_id": "2",
+      "action": "UPDATE",
+      "old_value": { "status": "free" },
+      "new_value": { "status": "occupied" },
+      "changed_by": "A. Smith",
+      "changed_at": "2026-11-15T18:00:01Z",
+      "hash": "1cdef0123456789abcdef0123456789abcdef0ab123456789abcdef01456"
+    },
+    {
+      "log_id": 6,
+      "table_name": "payment",
+      "record_id": "511",
+      "action": "INSERT",
+      "old_value": null,
+      "new_value": { "bill_id": 209, "amount": 88.00, "method": "cash" },
+      "changed_by": "M. Rossi",
+      "changed_at": "2026-11-15T17:55:20Z",
+      "hash": "2def0123456789abcdef0123456789abcdef0ab123456789abcdef014567"
+    },
+    {
+      "log_id": 5,
+      "table_name": "orders",
+      "record_id": "1039",
+      "action": "UPDATE",
+      "old_value": { "status": "bill_requested" },
+      "new_value": { "status": "closed" },
+      "changed_by": "M. Rossi",
+      "changed_at": "2026-11-15T17:55:21Z",
+      "hash": "3ef0123456789abcdef0123456789abcdef0ab123456789abcdef0145678"
+    },
+    {
+      "log_id": 4,
+      "table_name": "restaurant_table",
+      "record_id": "1",
+      "action": "UPDATE",
+      "old_value": { "status": "needs_cleaning" },
+      "new_value": { "status": "free" },
+      "changed_by": "A. Smith",
+      "changed_at": "2026-11-15T17:50:00Z",
+      "hash": "4f0123456789abcdef0123456789abcdef0ab123456789abcdef01456789"
+    },
+    {
+      "log_id": 3,
+      "table_name": "menu_item",
+      "record_id": "4",
+      "action": "UPDATE",
+      "old_value": { "status": "active" },
+      "new_value": { "status": "inactive" },
+      "changed_by": "J. Lee",
+      "changed_at": "2026-11-15T17:40:00Z",
+      "hash": "50123456789abcdef0123456789abcdef0ab123456789abcdef01456789a"
+    },
+    {
+      "log_id": 2,
+      "table_name": "staff",
+      "record_id": "00000000-0000-0000-0000-000000000005",
+      "action": "INSERT",
+      "old_value": null,
+      "new_value": { "username": "mrossi", "role": "cashier" },
+      "changed_by": "J. Lee",
+      "changed_at": "2026-11-15T17:30:00Z",
+      "hash": "6123456789abcdef0123456789abcdef0ab123456789abcdef01456789ab"
+    },
+    {
+      "log_id": 1,
+      "table_name": "restaurant_table",
+      "record_id": "16",
+      "action": "UPDATE",
+      "old_value": { "status": "free" },
+      "new_value": { "status": "reserved" },
+      "changed_by": "J. Lee",
+      "changed_at": "2026-11-15T17:15:00Z",
+      "hash": "723456789abcdef0123456789abcdef0123456789abcdef01456789abc"
+    }
+  ]
+}

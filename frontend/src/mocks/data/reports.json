@@ -1,0 +1,33 @@
+{
+  "summary": {
+    "revenue": 19420.00,
+    "total_orders": 318,
+    "avg_bill": 61.07,
+    "table_turnover": 2.8,
+    "avg_ticket_minutes": 14.2
+  },
+  "sales_by_day": [
+    { "date": "2026-11-09", "label": "Mon", "sales": 2450.00, "orders": 40 },
+    { "date": "2026-11-10", "label": "Tue", "sales": 2810.00, "orders": 46 },
+    { "date": "2026-11-11", "label": "Wed", "sales": 2640.00, "orders": 44 },
+    { "date": "2026-11-12", "label": "Thu", "sales": 3120.00, "orders": 51 },
+    { "date": "2026-11-13", "label": "Fri", "sales": 3890.00, "orders": 64 },
+    { "date": "2026-11-14", "label": "Sat", "sales": 4250.00, "orders": 70 },
+    { "date": "2026-11-15", "label": "Sun", "sales": 3260.00, "orders": 53 }
+  ],
+  "best_sellers": [
+    { "name": "Classic Burger", "category": "Mains", "sold": 94, "revenue": 1410.00 },
+    { "name": "Margherita Pizza", "category": "Mains", "sold": 82, "revenue": 1148.00 },
+    { "name": "Bruschetta", "category": "Starters", "sold": 71, "revenue": 603.50 },
+    { "name": "Grilled Salmon", "category": "Mains", "sold": 68, "revenue": 1632.00 },
+    { "name": "Lava Cake", "category": "Desserts", "sold": 65, "revenue": 520.00 },
+    { "name": "Chicken Wings", "category": "Starters", "sold": 58, "revenue": 638.00 },
+    { "name": "Fries", "category": "Sides", "sold": 92, "revenue": 414.00 },
+    { "name": "Lemonade", "category": "Drinks", "sold": 110, "revenue": 440.00 }
+  ],
+  "waiter_performance": [
+    { "name": "A. Smith", "username": "asmith", "orders": 142, "avg_bill": 63.40, "avg_time_min": 13.8 },
+    { "name": "M. Chen", "username": "mchen", "orders": 126, "avg_bill": 65.10, "avg_time_min": 14.5 },
+    { "name": "S. Patel", "username": "spatel", "orders": 50, "avg_bill": 58.90, "avg_time_min": 15.2 }
+  ]
+}

@@ -6,8 +6,8 @@
  * - Username & Password inputs
  * - Four role selector tiles: Admin, Cashier, Waiter, Kitchen Staff (chef)
  * - Submit button: "Log in as <Role>"
- * - Authenticates against API (or mockApi when VITE_USE_MOCKS=true)
- * - Redirects upon success to the role's home screen
+ * - "Forgot password?" recovery link
+ * - API error message displayed cleanly under the form
  */
 
 import React, { useState } from "react";
@@ -51,10 +51,9 @@ export function Login() {
     try {
       setLoading(true);
       const user = await login(username.trim(), password, selectedRole);
-      // Navigate to the role's home route
       navigate(getHomeRouteForRole(user.role), { replace: true });
     } catch (err) {
-      setError(err.message || "Failed to log in. Please check your credentials.");
+      setError(err.message || "Invalid credentials or login failed.");
     } finally {
       setLoading(false);
     }
@@ -117,26 +116,15 @@ export function Login() {
       </div>
 
       <Card style={cardStyle}>
-        <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "var(--spacing-xs)" }}>Staff Sign In</h2>
-        <p style={{ fontSize: "0.85rem", color: "var(--color-text-muted)", marginBottom: "var(--spacing-md)" }}>
-          Select your assigned role and log in with your credentials.
-        </p>
-
-        {error && (
-          <div
-            style={{
-              padding: "10px 12px",
-              backgroundColor: "var(--pill-red-bg)",
-              color: "var(--pill-red-text)",
-              border: "1px solid var(--pill-red-border)",
-              borderRadius: "var(--radius-md)",
-              fontSize: "0.85rem",
-              marginBottom: "var(--spacing-md)",
-            }}
-          >
-            {error}
-          </div>
-        )}
+        <div style={{ marginBottom: "var(--spacing-md)" }}>
+          <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--color-text-muted)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+            01 / SIGN IN
+          </span>
+          <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginTop: "2px" }}>Staff Sign In</h2>
+          <p style={{ fontSize: "0.85rem", color: "var(--color-text-muted)", marginTop: "2px" }}>
+            Select your assigned role and log in with your credentials.
+          </p>
+        </div>
 
         <form onSubmit={handleSubmit}>
           {/* Role selector tiles */}
@@ -194,9 +182,27 @@ export function Login() {
 
           <div style={{ marginTop: "var(--spacing-md)", textAlign: "center", fontSize: "0.85rem" }}>
             <Link to="/forgot-password" style={{ color: "var(--color-text-muted)" }}>
-              Forgot your password?
+              Forgot password?
             </Link>
           </div>
+
+          {/* Error message from API shown under the form */}
+          {error && (
+            <div
+              style={{
+                marginTop: "var(--spacing-md)",
+                padding: "10px 12px",
+                backgroundColor: "var(--pill-red-bg)",
+                color: "var(--pill-red-text)",
+                border: "1px solid var(--pill-red-border)",
+                borderRadius: "var(--radius-md)",
+                fontSize: "0.85rem",
+                textAlign: "center",
+              }}
+            >
+              {error}
+            </div>
+          )}
         </form>
       </Card>
     </div>
