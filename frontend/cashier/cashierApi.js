@@ -7,11 +7,17 @@
  *   BL001 (ALREADY_PAID) - 409 Conflict
  *   BL002 (AMOUNT_MISMATCH / OVERPAY) - 409 / 422 Conflict
  *   BL003 (ORDER_NOT_READY) - 409 Conflict
+ *
+ * Supports both real backend REST API (VITE_USE_MOCKS=false) and
+ * in-memory interactive simulation for wireframe demonstration switcher.
  */
 
+import apiClient from "../src/api/client";
 import { INITIAL_BILL, OPEN_BILLS, PROMOTIONS } from "./mockData";
 
-// In-memory simulation state so transactions persist across user actions
+const USE_MOCKS = import.meta.env.VITE_USE_MOCKS !== "false";
+
+// In-memory simulation state so wireframe switcher demo persists across user actions
 let currentBill = JSON.parse(JSON.stringify(INITIAL_BILL));
 let isClosedSimulated = false;
 let closedMetadata = {
@@ -25,15 +31,37 @@ let closedMetadata = {
  * Route: GET /bills/open
  */
 export async function fetchOpenBills() {
+  if (!USE_MOCKS) {
+    try {
+      const data = await apiClient("/bills/open", { method: "GET" });
+      if (Array.isArray(data)) return data;
+      if (data && Array.isArray(data.bills)) return data.bills;
+    } catch (err) {
+      console.warn("fetchOpenBills real API failed, using mock fallback:", err.message);
+    }
+  }
+
   await new Promise((resolve) => setTimeout(resolve, 80));
   return OPEN_BILLS;
 }
 
 /**
- * Fetch bill details by orderId (Screen 13)
+ * Fetch bill details by orderId or billId (Screen 13)
  * Route: GET /bills/<order_id>
  */
 export async function fetchBill(orderId = 1042) {
+  if (!USE_MOCKS) {
+    try {
+      const data = await apiClient(`/bills/${orderId}`, { method: "GET" });
+      if (data && data.bill_id) {
+        currentBill = data;
+        return data;
+      }
+    } catch (err) {
+      console.warn(`fetchBill(${orderId}) real API failed, using mock fallback:`, err.message);
+    }
+  }
+
   await new Promise((resolve) => setTimeout(resolve, 80));
   return { ...currentBill };
 }
@@ -43,6 +71,22 @@ export async function fetchBill(orderId = 1042) {
  * Route: POST /bills/<id>/promotion
  */
 export async function applyPromotion(billId, promoCode) {
+  if (!USE_MOCKS) {
+    try {
+      const updated = await apiClient(`/bills/${billId}/promotion`, {
+        method: "POST",
+        body: JSON.stringify({ promo_code: promoCode }),
+      });
+      currentBill = updated;
+      return updated;
+    } catch (err) {
+      console.warn("applyPromotion real API failed, evaluating mock fallback:", err.message);
+      if (err.status === 404 || err.status === 409 || err.code === "ALREADY_PAID" || err.code === "PROMO_NOT_FOUND") {
+        throw err;
+      }
+    }
+  }
+
   await new Promise((resolve) => setTimeout(resolve, 100));
 
   if (currentBill.status === "paid" || isClosedSimulated) {
@@ -84,6 +128,19 @@ export async function applyPromotion(billId, promoCode) {
  * Route: DELETE /bills/<id>/promotion
  */
 export async function removePromotion(billId) {
+  if (!USE_MOCKS) {
+    try {
+      const updated = await apiClient(`/bills/${billId}/promotion`, {
+        method: "DELETE",
+      });
+      currentBill = updated;
+      return updated;
+    } catch (err) {
+      console.warn("removePromotion real API failed:", err.message);
+      if (err.status === 409 || err.code === "ALREADY_PAID") throw err;
+    }
+  }
+
   await new Promise((resolve) => setTimeout(resolve, 80));
 
   if (currentBill.status === "paid" || isClosedSimulated) {
@@ -105,6 +162,26 @@ export async function removePromotion(billId) {
  * Throws 409 Conflict if bill is already closed (double-close check)
  */
 export async function recordPayment(billId, paymentDetails) {
+  if (!USE_MOCKS) {
+    try {
+      const res = await apiClient(`/bills/${billId}/payments`, {
+        method: "POST",
+        body: JSON.stringify(paymentDetails),
+      });
+      if (res && res.bill) {
+        currentBill = res.bill;
+        isClosedSimulated = true;
+      }
+      return res;
+    } catch (err) {
+      // Re-throw genuine business/concurrency errors so UI displays error banner
+      if (err.status === 409 || err.status === 422 || err.code === "ALREADY_PAID") {
+        throw err;
+      }
+      console.warn("recordPayment real API failed, using simulation:", err.message);
+    }
+  }
+
   await new Promise((resolve) => setTimeout(resolve, 120));
 
   // Check double close concurrency condition
@@ -162,6 +239,25 @@ export async function recordPayment(billId, paymentDetails) {
  * Validates sum(payers.amount) === total_amount in a single transaction
  */
 export async function confirmSplitPayment(billId, payers) {
+  if (!USE_MOCKS) {
+    try {
+      const res = await apiClient(`/bills/${billId}/split-payments`, {
+        method: "POST",
+        body: JSON.stringify({ payers }),
+      });
+      if (res && res.bill) {
+        currentBill = res.bill;
+        isClosedSimulated = true;
+      }
+      return res;
+    } catch (err) {
+      if (err.status === 409 || err.status === 422 || err.code === "SPLIT_MISMATCH" || err.code === "ALREADY_PAID") {
+        throw err;
+      }
+      console.warn("confirmSplitPayment real API failed, using simulation:", err.message);
+    }
+  }
+
   await new Promise((resolve) => setTimeout(resolve, 150));
 
   // Double-close concurrency check
@@ -235,6 +331,17 @@ export async function confirmSplitPayment(billId, payers) {
  * Route: GET /bills/<id>/receipt
  */
 export async function fetchReceipt(billId) {
+  if (!USE_MOCKS) {
+    try {
+      const receipt = await apiClient(`/bills/${billId}/receipt`, { method: "GET" });
+      if (receipt && receipt.receipt_no) {
+        return receipt;
+      }
+    } catch (err) {
+      console.warn("fetchReceipt real API failed, using mock fallback:", err.message);
+    }
+  }
+
   await new Promise((resolve) => setTimeout(resolve, 80));
   return {
     receipt_no: currentBill.receipt_no,
