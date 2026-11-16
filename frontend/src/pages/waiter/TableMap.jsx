@@ -45,10 +45,13 @@ export function TableMap() {
     };
     loadData();
 
-    // Subscribe to mock store changes
-    const unsubscribe = waiterStore.subscribe((newState) => {
-      setTables([...newState.tables]);
-    });
+    // Subscribe to mock store changes only when in mock mode
+    let unsubscribe = () => {};
+    if (import.meta.env.VITE_USE_MOCKS !== "false") {
+      unsubscribe = waiterStore.subscribe((newState) => {
+        setTables([...newState.tables]);
+      });
+    }
     return () => unsubscribe();
   }, []);
 

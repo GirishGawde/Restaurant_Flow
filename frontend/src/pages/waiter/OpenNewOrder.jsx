@@ -57,9 +57,12 @@ export function OpenNewOrder() {
     };
     load();
 
-    const unsubscribe = waiterStore.subscribe((state) => {
-      setTables([...state.tables]);
-    });
+    let unsubscribe = () => {};
+    if (import.meta.env.VITE_USE_MOCKS !== "false") {
+      unsubscribe = waiterStore.subscribe((state) => {
+        setTables([...state.tables]);
+      });
+    }
     return () => unsubscribe();
   }, [initialTableId]);
 
@@ -128,13 +131,16 @@ export function OpenNewOrder() {
         waiterName: loggedInWaiterName,
       });
 
-      toast.success(`Order ${newOrder.order_id} created for Table ${selectedTable.t_no}!`);
+      const targetOrderId = newOrder?.order_id || newOrder?.id;
+      const targetTableNo = newOrder?.table_no || selectedTable?.table_label || (selectedTable?.t_no ? `T-${selectedTable.t_no}` : "Table");
+
+      toast.success(`Order #${targetOrderId} created for Table ${targetTableNo}!`);
 
       // Navigate to Screen 6 (Menu Browser) with newly created order context
       navigate("/waiter/menu", {
         state: {
-          orderId: newOrder.order_id,
-          tableNo: selectedTable.t_no,
+          orderId: targetOrderId,
+          tableNo: targetTableNo,
           guestCount: guestCount,
         },
       });

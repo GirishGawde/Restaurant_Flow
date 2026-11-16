@@ -93,12 +93,15 @@ export function OrderPanel() {
     };
     load();
 
-    const unsubscribe = waiterStore.subscribe((state) => {
-      if (order?.order_id) {
-        const updated = state.orders.find((o) => o.order_id === order.order_id);
-        if (updated && isMounted) setOrder({ ...updated });
-      }
-    });
+    let unsubscribe = () => {};
+    if (import.meta.env.VITE_USE_MOCKS !== "false") {
+      unsubscribe = waiterStore.subscribe((state) => {
+        if (order?.order_id) {
+          const updated = state.orders.find((o) => o.order_id === order.order_id);
+          if (updated && isMounted) setOrder({ ...updated });
+        }
+      });
+    }
     return () => {
       isMounted = false;
       unsubscribe();

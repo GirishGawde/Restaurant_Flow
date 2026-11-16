@@ -50,9 +50,12 @@ export function MyOrders() {
     };
     load();
 
-    const unsubscribe = waiterStore.subscribe((state) => {
-      setOrders([...state.orders]);
-    });
+    let unsubscribe = () => {};
+    if (import.meta.env.VITE_USE_MOCKS !== "false") {
+      unsubscribe = waiterStore.subscribe((state) => {
+        setOrders([...state.orders]);
+      });
+    }
     return () => unsubscribe();
   }, []);
 

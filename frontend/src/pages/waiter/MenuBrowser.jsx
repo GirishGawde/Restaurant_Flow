@@ -63,12 +63,15 @@ export function MenuBrowser() {
     };
     load();
 
-    const unsubscribe = waiterStore.subscribe((state) => {
-      if (isMounted) {
-        setMenuItems([...state.menu]);
-        setOrders([...state.orders]);
-      }
-    });
+    let unsubscribe = () => {};
+    if (import.meta.env.VITE_USE_MOCKS !== "false") {
+      unsubscribe = waiterStore.subscribe((state) => {
+        if (isMounted) {
+          setMenuItems([...state.menu]);
+          setOrders([...state.orders]);
+        }
+      });
+    }
     return () => {
       isMounted = false;
       unsubscribe();

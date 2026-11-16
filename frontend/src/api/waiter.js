@@ -45,13 +45,13 @@ export async function fetchTableById(tableId) {
 
 export async function markTableClean(tableId) {
   if (!USE_MOCKS) {
+    const res = await apiClient(`/tables/${tableId}/mark-clean`, { method: "POST" });
     try {
-      const res = await apiClient(`/tables/${tableId}/mark-clean`, { method: "POST" });
-      waiterStore.markTableClean(tableId); // sync local store
-      return res;
-    } catch (err) {
-      console.warn("markTableClean API failed, using store:", err.message);
+      waiterStore.markTableClean(tableId);
+    } catch {
+      // Mock store error ignored
     }
+    return res;
   }
   await delay();
   const updated = waiterStore.markTableClean(tableId);
@@ -68,6 +68,7 @@ export async function fetchMenu(category = "All", search = "") {
       const qs = params.toString() ? `?${params.toString()}` : "";
       const data = await apiClient(`/menu${qs}`);
       if (data && data.items) return data.items;
+      if (Array.isArray(data)) return data;
     } catch (err) {
       console.warn("fetchMenu API failed, using store fallback:", err.message);
     }
@@ -94,20 +95,20 @@ export async function fetchMenu(category = "All", search = "") {
 
 export async function openOrder({ tableId, guestCount, notes, waiterName }) {
   if (!USE_MOCKS) {
+    const data = await apiClient("/orders", {
+      method: "POST",
+      body: JSON.stringify({
+        table_id: Number(tableId),
+        guests: Number(guestCount),
+        notes: notes || "",
+      }),
+    });
     try {
-      const data = await apiClient("/orders", {
-        method: "POST",
-        body: JSON.stringify({
-          table_id: Number(tableId),
-          guests: Number(guestCount),
-          notes: notes || "",
-        }),
-      });
-      waiterStore.createOrder({ tableId, guestCount, notes, waiterName }); // sync local store
-      return data;
-    } catch (err) {
-      console.warn("openOrder API failed, using store fallback:", err.message);
+      waiterStore.createOrder({ tableId, guestCount, notes, waiterName });
+    } catch {
+      // Mock store error ignored
     }
+    return data;
   }
   await delay();
   return waiterStore.createOrder({ tableId, guestCount, notes, waiterName });
@@ -137,6 +138,7 @@ export async function fetchMyOrders(filters = {}) {
       const qs = params.toString() ? `?${params.toString()}` : "";
       const data = await apiClient(`/orders${qs}`);
       if (data && data.orders) return data.orders;
+      if (Array.isArray(data)) return data;
     } catch (err) {
       console.warn("fetchMyOrders API failed, using store fallback:", err.message);
     }
@@ -147,22 +149,21 @@ export async function fetchMyOrders(filters = {}) {
 
 export async function addOrderItem(orderId, menuItem, expectedVersion = 1) {
   if (!USE_MOCKS) {
+    const res = await apiClient(`/orders/${orderId}/items`, {
+      method: "POST",
+      body: JSON.stringify({
+        item_id: menuItem.id || menuItem.item_id,
+        quantity: menuItem.quantity || 1,
+        notes: menuItem.notes || "",
+        expected_version: expectedVersion,
+      }),
+    });
     try {
-      const res = await apiClient(`/orders/${orderId}/items`, {
-        method: "POST",
-        body: JSON.stringify({
-          item_id: menuItem.id || menuItem.item_id,
-          quantity: menuItem.quantity || 1,
-          notes: menuItem.notes || "",
-          expected_version: expectedVersion,
-        }),
-      });
       waiterStore.addDraftItem(orderId, menuItem);
-      return res;
-    } catch (err) {
-      if (err.code === "VERSION_CONFLICT") throw err;
-      console.warn("addOrderItem API failed, using store fallback:", err.message);
+    } catch {
+      // Mock store error ignored
     }
+    return res;
   }
   await delay();
   return waiterStore.addDraftItem(orderId, menuItem);
@@ -170,20 +171,19 @@ export async function addOrderItem(orderId, menuItem, expectedVersion = 1) {
 
 export async function updateOrderItemQty(orderId, itemId, delta, expectedVersion = 1) {
   if (!USE_MOCKS) {
+    const res = await apiClient(`/orders/${orderId}/items/${itemId}`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        quantity: delta,
+        expected_version: expectedVersion,
+      }),
+    });
     try {
-      const res = await apiClient(`/orders/${orderId}/items/${itemId}`, {
-        method: "PATCH",
-        body: JSON.stringify({
-          quantity: delta,
-          expected_version: expectedVersion,
-        }),
-      });
       waiterStore.updateItemQuantity(orderId, itemId, delta);
-      return res;
-    } catch (err) {
-      if (err.code === "VERSION_CONFLICT") throw err;
-      console.warn("updateOrderItemQty API failed, using store fallback:", err.message);
+    } catch {
+      // Mock store error ignored
     }
+    return res;
   }
   await delay();
   return waiterStore.updateItemQuantity(orderId, itemId, delta);
@@ -191,17 +191,16 @@ export async function updateOrderItemQty(orderId, itemId, delta, expectedVersion
 
 export async function removeOrderItem(orderId, itemId, expectedVersion = 1) {
   if (!USE_MOCKS) {
+    const res = await apiClient(`/orders/${orderId}/items/${itemId}`, {
+      method: "DELETE",
+      body: JSON.stringify({ expected_version: expectedVersion }),
+    });
     try {
-      const res = await apiClient(`/orders/${orderId}/items/${itemId}`, {
-        method: "DELETE",
-        body: JSON.stringify({ expected_version: expectedVersion }),
-      });
       waiterStore.removeOrderItem(orderId, itemId);
-      return res;
-    } catch (err) {
-      if (err.code === "VERSION_CONFLICT") throw err;
-      console.warn("removeOrderItem API failed, using store fallback:", err.message);
+    } catch {
+      // Mock store error ignored
     }
+    return res;
   }
   await delay();
   return waiterStore.removeOrderItem(orderId, itemId);
@@ -209,17 +208,16 @@ export async function removeOrderItem(orderId, itemId, expectedVersion = 1) {
 
 export async function sendToKitchen(orderId, expectedVersion = 1) {
   if (!USE_MOCKS) {
+    const res = await apiClient(`/orders/${orderId}/send-to-kitchen`, {
+      method: "POST",
+      body: JSON.stringify({ expected_version: expectedVersion }),
+    });
     try {
-      const res = await apiClient(`/orders/${orderId}/send-to-kitchen`, {
-        method: "POST",
-        body: JSON.stringify({ expected_version: expectedVersion }),
-      });
       waiterStore.sendToKitchen(orderId);
-      return res;
-    } catch (err) {
-      if (err.code === "VERSION_CONFLICT") throw err;
-      console.warn("sendToKitchen API failed, using store fallback:", err.message);
+    } catch {
+      // Mock store error ignored
     }
+    return res;
   }
   await delay();
   return waiterStore.sendToKitchen(orderId);
@@ -227,13 +225,13 @@ export async function sendToKitchen(orderId, expectedVersion = 1) {
 
 export async function requestBill(orderId) {
   if (!USE_MOCKS) {
+    const res = await apiClient(`/orders/${orderId}/request-bill`, { method: "POST" });
     try {
-      const res = await apiClient(`/orders/${orderId}/request-bill`, { method: "POST" });
       waiterStore.requestBill(orderId);
-      return res;
-    } catch (err) {
-      console.warn("requestBill API failed, using store fallback:", err.message);
+    } catch {
+      // Mock store error ignored
     }
+    return res;
   }
   await delay();
   return waiterStore.requestBill(orderId);
@@ -241,13 +239,13 @@ export async function requestBill(orderId) {
 
 export async function cancelOrder(orderId) {
   if (!USE_MOCKS) {
+    const res = await apiClient(`/orders/${orderId}/cancel`, { method: "POST" });
     try {
-      const res = await apiClient(`/orders/${orderId}/cancel`, { method: "POST" });
       waiterStore.cancelOrder(orderId);
-      return res;
-    } catch (err) {
-      console.warn("cancelOrder API failed, using store fallback:", err.message);
+    } catch {
+      // Mock store error ignored
     }
+    return res;
   }
   await delay();
   return waiterStore.cancelOrder(orderId);
