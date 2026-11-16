@@ -41,19 +41,17 @@ export async function handleMockRequest(endpoint, options = {}) {
 
   // 2. Auth: Login
   if (path === "/auth/login" && method === "POST") {
-    const { username, password, role } = body;
-    if (!username || !password || !role) {
-      const err = new Error("Missing username, password, or role.");
-      err.code = "BAD_REQUEST";
-      err.status = 400;
-      throw err;
+    let { username, password, role } = body;
+    
+    // Auto-fill default username if blank
+    if (!username || !username.trim()) {
+      username = role === "waiter" ? "asmith" : role === "admin" ? "jlee" : role === "cashier" ? "mrossi" : "krao";
     }
-
-    if (password !== "test") {
-      const err = new Error("Invalid username or password (mock mode expects password: 'test').");
-      err.code = "UNAUTHORIZED";
-      err.status = 401;
-      throw err;
+    if (!password) {
+      password = "test";
+    }
+    if (!role) {
+      role = "waiter";
     }
 
     const matchedStaff = mockStaff.find(
@@ -63,7 +61,7 @@ export async function handleMockRequest(endpoint, options = {}) {
     const user = matchedStaff
       ? { ...matchedStaff, role }
       : {
-          staff_id: "00000000-0000-0000-0000-000000000099",
+          staff_id: `00000000-0000-0000-0000-${Date.now().toString().slice(-12)}`,
           name: username.charAt(0).toUpperCase() + username.slice(1),
           username: username.trim(),
           role: role,
