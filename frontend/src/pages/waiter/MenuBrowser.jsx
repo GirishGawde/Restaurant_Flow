@@ -11,7 +11,7 @@
  * - "View Order" button navigating to Screen 7 (Order Panel)
  */
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "../../components/Toast";
 import Card from "../../components/Card";
@@ -19,7 +19,7 @@ import Button from "../../components/Button";
 import StatusPill from "../../components/StatusPill";
 import { formatMoney } from "../../utils/format";
 import { waiterStore } from "../../mocks/waiterMockStore";
-import { fetchMenu, fetchMyOrders, addOrderItem, updateOrderItemQty } from "../../api/waiter";
+import { fetchMenu, fetchMyOrders, fetchOrder, addOrderItem, updateOrderItemQty } from "../../api/waiter";
 
 export function MenuBrowser() {
   const navigate = useNavigate();
@@ -28,6 +28,7 @@ export function MenuBrowser() {
 
   const [menuItems, setMenuItems] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [currentOrderDetails, setCurrentOrderDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -37,50 +38,117 @@ export function MenuBrowser() {
   const [activeOrderId, setActiveOrderId] = useState(stateOrderId || null);
 
   useEffect(() => {
+    let isMounted = true;
     const load = async () => {
-      const [items, allOrders] = await Promise.all([fetchMenu(), fetchMyOrders()]);
-      setMenuItems(items);
-      setOrders(allOrders);
+      try {
+        const [items, allOrders] = await Promise.all([fetchMenu(), fetchMyOrders()]);
+        if (!isMounted) return;
+        setMenuItems(Array.isArray(items) ? items : []);
+        setOrders(Array.isArray(allOrders) ? allOrders : []);
 
-      // Default to first open or in_kitchen order if none selected
-      if (!activeOrderId) {
-        const defaultOrder = allOrders.find(
-          (o) => o.status === "open" || o.status === "in_kitchen"
-        );
-        if (defaultOrder) {
-          setActiveOrderId(defaultOrder.order_id);
+        // Default to first open or in_kitchen order if none selected
+        if (!activeOrderId && Array.isArray(allOrders) && allOrders.length > 0) {
+          const defaultOrder = allOrders.find(
+            (o) => o.status === "open" || o.status === "in_kitchen"
+          ) || allOrders[0];
+          if (defaultOrder) {
+            setActiveOrderId(defaultOrder.order_id);
+          }
         }
+      } catch (err) {
+        console.warn("Failed to load initial menu browser data:", err.message);
+      } finally {
+        if (isMounted) setLoading(false);
       }
-      setLoading(false);
     };
     load();
 
     const unsubscribe = waiterStore.subscribe((state) => {
-      setMenuItems([...state.menu]);
-      setOrders([...state.orders]);
+      if (isMounted) {
+        setMenuItems([...state.menu]);
+        setOrders([...state.orders]);
+      }
     });
-    return () => unsubscribe();
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
   }, [activeOrderId]);
 
-  // Current active order object
+  // Current active order object from orders list
   const currentOrder = useMemo(() => {
+    if (!orders || orders.length === 0) return null;
     return orders.find((o) => o.order_id === activeOrderId) || orders[0] || null;
   }, [orders, activeOrderId]);
+
+  // Load detailed items and current version for the active order
+  const targetOrderId = activeOrderId || currentOrder?.order_id;
+
+  const reloadOrderDetails = useCallback(async (oid) => {
+    if (!oid) return;
+    try {
+      const fullOrder = await fetchOrder(oid);
+      if (fullOrder) {
+        setCurrentOrderDetails(fullOrder);
+      }
+    } catch (err) {
+      console.warn("reloadOrderDetails failed:", err.message);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (targetOrderId) {
+      reloadOrderDetails(targetOrderId);
+    } else {
+      setCurrentOrderDetails(null);
+    }
+  }, [targetOrderId, reloadOrderDetails]);
+
+  // Safe items array from detailed order or order list
+  const currentItems = useMemo(() => {
+    if (Array.isArray(currentOrderDetails?.items)) {
+      return currentOrderDetails.items;
+    }
+    if (Array.isArray(currentOrder?.items)) {
+      return currentOrder.items;
+    }
+    return [];
+  }, [currentOrderDetails?.items, currentOrder?.items]);
+
+  // Safe subtotal calculation
+  const currentSubtotal = useMemo(() => {
+    if (currentOrderDetails?.subtotal !== undefined) {
+      return Number(currentOrderDetails.subtotal) || 0;
+    }
+    if (currentOrder?.subtotal !== undefined) {
+      return Number(currentOrder.subtotal) || 0;
+    }
+    return currentItems.reduce(
+      (sum, i) => sum + (Number(i.unit_price) || 0) * (Number(i.quantity) || 1),
+      0
+    );
+  }, [currentOrderDetails?.subtotal, currentOrder?.subtotal, currentItems]);
 
   // Categories list
   const categories = ["All", "Starters", "Main Course", "Desserts", "Beverages"];
 
   // Filtered menu items based on category and search query
   const filteredItems = useMemo(() => {
+    if (!Array.isArray(menuItems)) return [];
     return menuItems.filter((item) => {
+      const itemCat = (item.category || "").toLowerCase();
+      const selCat = selectedCategory.toLowerCase();
+
+      // Flexible category matching (e.g. Mains vs Main Course)
       const matchCategory =
         selectedCategory === "All" ||
-        item.category.toLowerCase() === selectedCategory.toLowerCase();
+        itemCat === selCat ||
+        (selCat === "main course" && (itemCat === "mains" || itemCat === "main course"));
 
       const q = searchQuery.trim().toLowerCase();
       const matchSearch =
         !q ||
-        item.name.toLowerCase().includes(q) ||
+        (item.name && item.name.toLowerCase().includes(q)) ||
         (item.description && item.description.toLowerCase().includes(q)) ||
         (item.ingredients && item.ingredients.toLowerCase().includes(q)) ||
         (item.category && item.category.toLowerCase().includes(q));
@@ -91,7 +159,8 @@ export function MenuBrowser() {
 
   // Handle adding an item to the active order
   const handleAddItem = async (item) => {
-    if (!currentOrder) {
+    const activeObj = currentOrderDetails || currentOrder;
+    if (!activeObj) {
       toast.error("Please open or select an active table order first.");
       return;
     }
@@ -100,9 +169,13 @@ export function MenuBrowser() {
       return;
     }
 
+    const oid = activeObj.order_id;
+    const version = currentOrderDetails?.version || currentOrder?.version || 1;
+
     try {
-      await addOrderItem(currentOrder.order_id, item);
-      toast.success(`Added ${item.name} to ${currentOrder.table_no} (${currentOrder.order_id})`);
+      await addOrderItem(oid, item, version);
+      await reloadOrderDetails(oid);
+      toast.success(`Added ${item.name} to ${activeObj.table_no || "Table"} (#${oid})`);
     } catch (err) {
       toast.error(err.message || "Failed to add item.");
     }
@@ -110,9 +183,15 @@ export function MenuBrowser() {
 
   // Handle quantity adjustment in the summary panel
   const handleUpdateQty = async (itemId, delta) => {
-    if (!currentOrder) return;
+    const activeObj = currentOrderDetails || currentOrder;
+    if (!activeObj) return;
+
+    const oid = activeObj.order_id;
+    const version = currentOrderDetails?.version || currentOrder?.version || 1;
+
     try {
-      await updateOrderItemQty(currentOrder.order_id, itemId, delta);
+      await updateOrderItemQty(oid, itemId, delta, version);
+      await reloadOrderDetails(oid);
     } catch (err) {
       toast.error(err.message || "Failed to update quantity.");
     }
@@ -120,8 +199,9 @@ export function MenuBrowser() {
 
   // Navigate to Screen 7 (Order Panel)
   const handleViewOrder = () => {
-    if (!currentOrder) return;
-    navigate(`/waiter/orders/${currentOrder.order_id}`);
+    const activeObj = currentOrderDetails || currentOrder;
+    if (!activeObj) return;
+    navigate(`/waiter/orders/${activeObj.order_id}`);
   };
 
   if (loading) {
@@ -133,7 +213,7 @@ export function MenuBrowser() {
   }
 
   // Active open orders for the dropdown switcher
-  const openOrders = orders.filter((o) => o.status !== "completed");
+  const openOrders = orders.filter((o) => o.status !== "closed" && o.status !== "cancelled");
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-lg)" }}>
@@ -183,7 +263,7 @@ export function MenuBrowser() {
           {openOrders.length > 0 ? (
             <select
               value={currentOrder?.order_id || ""}
-              onChange={(e) => setActiveOrderId(e.target.value)}
+              onChange={(e) => setActiveOrderId(Number(e.target.value) || e.target.value)}
               style={{
                 padding: "6px 12px",
                 borderRadius: "var(--radius-md)",
@@ -198,7 +278,7 @@ export function MenuBrowser() {
             >
               {openOrders.map((o) => (
                 <option key={o.order_id} value={o.order_id}>
-                  {o.table_no} ({o.order_id}) • {o.guest_count} Guests
+                  {o.table_no || `T-${o.table_id}`} (#{o.order_id}) • {o.guest_count || o.guests || 2} Guests
                 </option>
               ))}
             </select>
@@ -214,7 +294,7 @@ export function MenuBrowser() {
               onClick={handleViewOrder}
               style={{ padding: "6px 14px", fontSize: "0.85rem" }}
             >
-              View Order ({currentOrder.items.length}) →
+              View Order ({currentItems.length}) →
             </Button>
           )}
         </div>
@@ -341,12 +421,13 @@ export function MenuBrowser() {
                 
                 // Count how many of this item are currently in draft in the active order
                 const draftCount =
-                  currentOrder?.items.find((i) => i.item_id === item.item_id && i.status === "draft")
-                    ?.quantity || 0;
+                  currentItems.find(
+                    (i) => (i.item_id === item.item_id || i.item_id === item.id) && i.status === "draft"
+                  )?.quantity || 0;
 
                 return (
                   <div
-                    key={item.item_id}
+                    key={item.item_id || item.id}
                     style={{
                       backgroundColor: "#FFFFFF",
                       borderRadius: "var(--radius-lg)",
@@ -370,7 +451,7 @@ export function MenuBrowser() {
                       }}
                     >
                       <img
-                        src={item.image}
+                        src={item.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&auto=format&fit=crop&q=60"}
                         alt={item.name}
                         style={{
                           width: "100%",
@@ -378,7 +459,6 @@ export function MenuBrowser() {
                           objectFit: "cover",
                         }}
                         onError={(e) => {
-                          // Clean fallback placeholder if image cannot load
                           e.target.style.display = "none";
                         }}
                       />
@@ -461,7 +541,7 @@ export function MenuBrowser() {
                           overflow: "hidden",
                         }}
                       >
-                        {item.description}
+                        {item.description || "Freshly prepared with quality seasonal ingredients."}
                       </p>
 
                       {/* Ingredients list */}
@@ -534,10 +614,10 @@ export function MenuBrowser() {
                   Order Summary
                 </span>
                 <h3 style={{ fontSize: "1.15rem", fontWeight: 700, color: "var(--color-text-main)", margin: 0 }}>
-                  {currentOrder ? `${currentOrder.table_no} • ${currentOrder.order_id}` : "No Order Selected"}
+                  {currentOrder ? `${currentOrder.table_no || `Table ${currentOrder.table_id}`} • #${currentOrder.order_id}` : "No Order Selected"}
                 </h3>
               </div>
-              {currentOrder && <StatusPill status={currentOrder.status} />}
+              {currentOrder && <StatusPill status={currentOrderDetails?.status || currentOrder.status} />}
             </div>
 
             {/* Table context specs */}
@@ -552,24 +632,28 @@ export function MenuBrowser() {
                   borderBottom: "1px solid var(--color-border-subtle)",
                 }}
               >
-                <span>Section: <strong>{currentOrder.section}</strong></span>
-                <span>Guests: <strong>{currentOrder.guest_count}</strong></span>
-                <span>Staff: <strong>{currentOrder.waiter}</strong></span>
+                <span>Section: <strong>{currentOrderDetails?.section || currentOrder.section || "Main"}</strong></span>
+                <span>Guests: <strong>{currentOrderDetails?.guest_count || currentOrderDetails?.guests || currentOrder.guest_count || currentOrder.guests || 2}</strong></span>
+                <span>Staff: <strong>{currentOrderDetails?.waiter_name || currentOrder.waiter_name || currentOrder.waiter || "Staff"}</strong></span>
               </div>
             )}
 
             {/* Draft Items list */}
             <div style={{ margin: "14px 0", maxHeight: "280px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "10px" }}>
-              {!currentOrder || currentOrder.items.length === 0 ? (
+              {!currentOrder || currentItems.length === 0 ? (
                 <div style={{ textAlign: "center", padding: "20px 0", color: "var(--color-text-muted)", fontSize: "0.825rem" }}>
                   No items added yet. Click "+ Add" on any menu card to build the order draft.
                 </div>
               ) : (
-                currentOrder.items.map((item, idx) => {
+                currentItems.map((item, idx) => {
                   const isDraft = item.status === "draft";
+                  const unitPrice = Number(item.unit_price) || 0;
+                  const qty = Number(item.quantity) || 1;
+                  const itemTotal = Number(item.total_price) || unitPrice * qty;
+
                   return (
                     <div
-                      key={`${item.item_id}-${idx}`}
+                      key={`${item.order_item_id || item.item_id || idx}`}
                       style={{
                         display: "flex",
                         alignItems: "center",
@@ -585,7 +669,7 @@ export function MenuBrowser() {
                           {item.name}
                         </div>
                         <div style={{ fontSize: "0.75rem", color: "var(--color-text-muted)" }}>
-                          {formatMoney(item.unit_price, "₹")} each •{" "}
+                          {formatMoney(unitPrice, "₹")} each •{" "}
                           <span style={{ fontWeight: 600, color: isDraft ? "var(--color-primary)" : "var(--color-text-main)" }}>
                             {isDraft ? "Draft" : item.status}
                           </span>
@@ -596,7 +680,7 @@ export function MenuBrowser() {
                       {isDraft ? (
                         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                           <button
-                            onClick={() => handleUpdateQty(item.item_id, -1)}
+                            onClick={() => handleUpdateQty(item.order_item_id || item.item_id, -1)}
                             style={{
                               width: "24px",
                               height: "24px",
@@ -614,10 +698,10 @@ export function MenuBrowser() {
                             –
                           </button>
                           <span style={{ fontSize: "0.85rem", fontWeight: 700, minWidth: "16px", textAlign: "center" }}>
-                            {item.quantity}
+                            {qty}
                           </span>
                           <button
-                            onClick={() => handleUpdateQty(item.item_id, 1)}
+                            onClick={() => handleUpdateQty(item.order_item_id || item.item_id, 1)}
                             style={{
                               width: "24px",
                               height: "24px",
@@ -637,13 +721,13 @@ export function MenuBrowser() {
                         </div>
                       ) : (
                         <span style={{ fontSize: "0.85rem", fontWeight: 700 }}>
-                          x{item.quantity}
+                          x{qty}
                         </span>
                       )}
 
                       {/* Total Price for item */}
                       <div style={{ minWidth: "60px", textAlign: "right", fontSize: "0.85rem", fontWeight: 700 }}>
-                        {formatMoney(item.total_price, "₹")}
+                        {formatMoney(itemTotal, "₹")}
                       </div>
                     </div>
                   );
@@ -657,14 +741,14 @@ export function MenuBrowser() {
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "0.9rem" }}>
                   <span style={{ color: "var(--color-text-muted)" }}>Total Items:</span>
                   <span style={{ fontWeight: 600 }}>
-                    {currentOrder.items.reduce((sum, i) => sum + i.quantity, 0)} items
+                    {currentItems.reduce((sum, i) => sum + (Number(i.quantity) || 1), 0)} items
                   </span>
                 </div>
 
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px", fontSize: "1.1rem" }}>
                   <span style={{ fontWeight: 700 }}>Subtotal:</span>
                   <span style={{ fontWeight: 700, color: "var(--color-primary)" }}>
-                    {formatMoney(currentOrder.subtotal, "₹")}
+                    {formatMoney(currentSubtotal, "₹")}
                   </span>
                 </div>
 
@@ -679,18 +763,7 @@ export function MenuBrowser() {
               </div>
             )}
           </Card>
-
-          {/* Workflow Note Card */}
-          <Card padding="var(--spacing-md)" style={{ backgroundColor: "var(--color-bg-page)" }}>
-            <div style={{ fontSize: "0.725rem", fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", marginBottom: "4px" }}>
-              Kitchen Workflow
-            </div>
-            <p style={{ fontSize: "0.775rem", color: "var(--color-text-muted)", lineHeight: 1.4, margin: 0 }}>
-              All items added here remain drafts until you open the <strong>Order Panel</strong> and click <strong>Send to Kitchen</strong>.
-            </p>
-          </Card>
         </div>
-
       </div>
     </div>
   );

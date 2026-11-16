@@ -186,6 +186,9 @@ export function OrderPanel() {
     const nextStatus = item.status === "sent" ? "preparing" : item.status === "preparing" ? "served" : "served";
     item.status = nextStatus;
     
+    if (!Array.isArray(order.history)) {
+      order.history = [];
+    }
     order.history.unshift({
       action: `${item.name} advanced to ${nextStatus}`,
       staff: "Diya (Kitchen Display)",
