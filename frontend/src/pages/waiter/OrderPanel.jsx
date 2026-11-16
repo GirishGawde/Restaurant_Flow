@@ -135,8 +135,9 @@ export function OrderPanel() {
       return;
     }
     try {
-      const updated = await updateOrderItemQty(order.order_id, itemId, delta);
-      setOrder({ ...updated });
+      await updateOrderItemQty(order.order_id, itemId, delta, order.version);
+      const full = await fetchOrder(order.order_id);
+      if (full) setOrder({ ...full });
     } catch (err) {
       toast.error(err.message || "Failed to update item quantity.");
     }
@@ -145,8 +146,9 @@ export function OrderPanel() {
   const handleRemove = async (itemId) => {
     if (isFrozen) return;
     try {
-      const updated = await removeOrderItem(order.order_id, itemId);
-      setOrder({ ...updated });
+      await removeOrderItem(order.order_id, itemId, order.version);
+      const full = await fetchOrder(order.order_id);
+      if (full) setOrder({ ...full });
       toast.info("Draft item removed.");
     } catch (err) {
       toast.error(err.message || "Failed to remove item.");
@@ -159,10 +161,11 @@ export function OrderPanel() {
       return;
     }
     try {
-      const updated = await sendToKitchen(order.order_id);
-      setOrder({ ...updated });
+      const res = await sendToKitchen(order.order_id, order.version);
+      const full = await fetchOrder(order.order_id);
+      if (full) setOrder({ ...full });
       setShowSendConfirm(false);
-      toast.success(`${draftItems.length} draft item(s) sent to Kitchen (Version updated to v${updated.version})!`);
+      toast.success(`${draftItems.length} draft item(s) sent to Kitchen (Version updated to v${res.version || order.version + 1})!`);
     } catch (err) {
       toast.error(err.message || "Failed to send to kitchen.");
     }
@@ -174,8 +177,9 @@ export function OrderPanel() {
       return;
     }
     try {
-      const updated = await requestBill(order.order_id);
-      setOrder({ ...updated });
+      await requestBill(order.order_id);
+      const full = await fetchOrder(order.order_id);
+      if (full) setOrder({ ...full });
       setShowBillConfirm(false);
       toast.success(`Bill requested for ${order.table_no}. Order forwarded to Cashier.`);
     } catch (err) {

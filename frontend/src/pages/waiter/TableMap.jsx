@@ -481,7 +481,7 @@ export function TableMap() {
                   >
                     {/* Table Number */}
                     <div style={{ fontSize: "1.05rem", fontWeight: 700, color: "var(--color-text-main)" }}>
-                      {table.t_no}
+                      {table.table_label || (typeof table.t_no === "number" ? `T-${String(table.t_no).padStart(2, "0")}` : table.t_no)}
                     </div>
 
                     {/* Capacity */}
@@ -505,7 +505,7 @@ export function TableMap() {
                           lineHeight: "1.2",
                         }}
                       >
-                        {table.guest_count} guests • {table.waiter}
+                        {(table.guest_count || table.current_guests || 0)} guests • {table.waiter || table.waiter_name || "Staff"}
                       </div>
                     )}
 
@@ -569,7 +569,7 @@ export function TableMap() {
               >
                 <div>
                   <h3 style={{ fontSize: "1.3rem", fontWeight: 700, color: "var(--color-text-main)", margin: 0 }}>
-                    {selectedTable.t_no}
+                    {selectedTable.table_label || (typeof selectedTable.t_no === "number" ? `T-${String(selectedTable.t_no).padStart(2, "0")}` : selectedTable.t_no)}
                   </h3>
                   <span style={{ fontSize: "0.8rem", color: "var(--color-text-muted)" }}>
                     {selectedTable.section}
@@ -589,11 +589,11 @@ export function TableMap() {
                   <>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem" }}>
                       <span style={{ color: "var(--color-text-muted)" }}>Current Guests:</span>
-                      <span style={{ fontWeight: 600 }}>{selectedTable.guest_count || 3} seated</span>
+                      <span style={{ fontWeight: 600 }}>{(selectedTable.guest_count || selectedTable.current_guests || 0)} seated</span>
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem" }}>
                       <span style={{ color: "var(--color-text-muted)" }}>Assigned Waiter:</span>
-                      <span style={{ fontWeight: 600 }}>{selectedTable.waiter || "A. Smith"}</span>
+                      <span style={{ fontWeight: 600 }}>{selectedTable.waiter || selectedTable.waiter_name || "Staff"}</span>
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem" }}>
                       <span style={{ color: "var(--color-text-muted)" }}>Active Order:</span>

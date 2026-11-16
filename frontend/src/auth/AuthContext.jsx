@@ -38,6 +38,12 @@ export function AuthProvider({ children }) {
     setLoading(true);
     try {
       const res = await apiLogin({ username, password, role });
+      if (res?.access_token) {
+        sessionStorage.setItem("access_token", res.access_token);
+      }
+      if (res?.user) {
+        sessionStorage.setItem("user", JSON.stringify(res.user));
+      }
       setToken(res.access_token);
       setUser(res.user);
       return res.user;

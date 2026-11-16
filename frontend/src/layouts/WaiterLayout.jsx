@@ -270,23 +270,25 @@ export function WaiterLayout() {
 
         {/* Separator and Footer profile */}
         <div style={{ padding: "12px 16px", borderTop: "1px solid var(--color-border-subtle)", display: "flex", flexDirection: "column", gap: "10px" }}>
-          {/* Quick reset button for testing */}
-          <button
-            onClick={handleResetData}
-            title="Reset mock data to initial demo state"
-            style={{
-              background: "none",
-              border: "1px dashed var(--color-border)",
-              borderRadius: "var(--radius-sm)",
-              padding: "5px 8px",
-              fontSize: "0.725rem",
-              color: "var(--color-text-muted)",
-              cursor: "pointer",
-              textAlign: "center",
-            }}
-          >
-            ↻ Reset Mock Data
-          </button>
+          {/* Quick reset button for testing only in mock mode */}
+          {import.meta.env.VITE_USE_MOCKS !== "false" && (
+            <button
+              onClick={handleResetData}
+              title="Reset mock data to initial demo state"
+              style={{
+                background: "none",
+                border: "1px dashed var(--color-border)",
+                borderRadius: "var(--radius-sm)",
+                padding: "5px 8px",
+                fontSize: "0.725rem",
+                color: "var(--color-text-muted)",
+                cursor: "pointer",
+                textAlign: "center",
+              }}
+            >
+              ↻ Reset Mock Data
+            </button>
+          )}
 
           {/* Waiter Card */}
           <div
